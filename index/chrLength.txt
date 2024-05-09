@@ -1,0 +1,1 @@
+/rhome/brandonle/bigdata/index/TAIR10-STAR/chrLength.txt

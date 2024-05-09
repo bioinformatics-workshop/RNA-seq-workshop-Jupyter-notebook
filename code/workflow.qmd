@@ -1,0 +1,135 @@
+---
+title: "RNA-seq Analysis Workflow - Cheatsheet"
+subtitle: "RNA-seq Workshop demo"
+format: html
+editor: visual
+title-block-style: default
+title-block-banner: true
+title-block-categories: true
+author: Brandon Le
+affiliation: Bioinformatics Core, Institute of Integrative Genome Biology
+date: 10-18-2023
+date-modified: 10-23-2023
+date-format: "MM-DD-YYYY"
+code-fold: true
+embed-resources: true
+toc: true
+page-layout: full
+number-sections: true
+link-external-newwindow: true
+---
+
+Below is a general workflow for the processing and analysis of the RNA-seq dataset. Code chunks were implemented on the UCR HPCC cluster.
+
+## Obtain SRA sample list
+We will obtain a SRA sample list containing information for a BioProject stored in the SRA database. Input for the list is the BioProject ID: PRJNA950346
+
+```sh
+sbatch code/sra_list_download.sh
+```
+
+## Generate metadata file
+A metadata file is used to describe the sequencing project and used for downstream analysis. 
+
+The metadata file consists of seven columns:
+srr_id,ecotype,genotype,treatment,tissue,gsm_id,biorep,samplename
+  
+-   **srr_id** : SRR ID from SRA run
+-   **ecotype**: Col-0
+-   **genotype**: WT or mir163 mutant
+-   **treatment**: 7 day old plants
+-   **tissue**: seedlings
+-   **biorep**: biological replicate number
+-   **samplename** : sample name for labeling
+-   **fq1** : filepath to read1
+-   **fq2** : filepath to read2
+
+The `samplename` is used for all downstream analysis.
+
+```r
+Rscript --vanilla code/metadata.R
+```
+
+## Data Download
+
+Data were downloaded from the NCBI SRA server to the HPCC cluster
+
+```sh
+while IFS=, read -r srr_id eco geno trt tiss biorep samplename fq1 fq2
+do
+  sbatch code/sra-download.sh ${srr_id}
+done < <(tail -n +2 raw/metadata.csv)
+```
+
+## QC with FASTQC and trim_galore
+
+QC was performed using `fastqc` and `trim_galore` initiated through two shell scripts: `fastqc.sh` and `trim_galore.sh`
+
+```sh
+while IFS=, read -r srr_id eco geno trt tiss biorep samplename fq1 fq2
+do
+  sbatch code/fastqc.sh ${srr_id}
+  sbatch code/trim_galore.sh $samplename $fq1 $fq2
+done < <(tail -n +2 raw/metadata.csv)
+```
+
+## Genome Download
+
+Genome sequence and annotation files were downloaded for the respective rice and tomato reference genomes.
+
+```sh
+sbatch code/download-genome.sh
+```
+
+## Generate STAR Index
+
+To run the splice-aware alignment program `STAR`, we need to build an index of the reference genomes
+
+```sh
+sbatch code/STAR-index.sh
+```
+
+## Genome Alignment using STAR
+
+Align the QC reads to the reference genome using the `STAR` aligner.
+
+```sh
+while IFS=, read -r srr_id eco geno trt tiss biorep samplename fq1 fq2
+do
+  sbatch code/STAR-align.sh ${samplename}
+done < <(tail -n +2 raw/metadata.csv)
+```
+
+## Convert BAM to BIGWIG for IGV visualization
+
+Convert the BAM files to BigWig format for easy visualization in the Integrative Genome Viewer (IGV).
+
+```sh
+while IFS=, read -r srr_id eco geno trt tiss biorep samplename fq1 fq2
+do
+  sbatch code/bamTobw.sh ${samplename}
+done < <(tail -n +2 raw/metadata.csv)
+```
+
+## Featurecount to quantify aligned reads
+
+`FeatureCount`, a package that is part of the `SubRead` software, will be used to quantify the mapped reads to genomic features (e.g. genes, transcripts)
+
+```sh
+sbatch code/featurecounts.sh
+```
+## DESeq2 analysis
+
+We will use `DESeq2` to identify differentially expressed genes within the dataset. 
+
+```sh
+sbatch code/DESeq2.sh
+```
+
+## QC Summary with MultiQC
+
+`MultiQC` is used to generate a summary of the raw and processed data. The results are provided in an HTML file.
+
+```sh
+sbatch code/multiqc.sh
+```

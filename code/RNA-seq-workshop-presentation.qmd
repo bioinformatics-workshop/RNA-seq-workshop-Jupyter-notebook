@@ -1,0 +1,1144 @@
+---
+title: "Intro to RNA-seq Analysis"
+subtitle: "Hosted by the IIGB Bioinformatics Core"
+author: "Brandon Le"
+date-modified: 10-23-2023
+institute: "Genomics Building 1207G"
+code-line-numbers: true
+code-overflow: scroll
+affiliation: "IIGB, University of California, Riverside"
+format: 
+  revealjs:
+    theme: simple
+    scrollable: true
+    smaller: false
+    output-file: RNA-seq-presentation-revealjs.html
+editor: visual
+slide-number: true
+title-slide-attributes:
+    data-background-image: img/UCR-BC-logo-800x200.png
+    data-background-size: 70%
+    data-background-opacity: "1"
+    data-background-position: "top"
+link-external-newwindow: true
+embed-resources: true
+standalone: true
+---
+
+# About the Core
+
+## IIGB Bioinformatics Core
+
+:::{.panel-tabset}
+
+### Website {.smaller}
+<https://facility.bioinformatics.ucr.edu>  
+
+![](img/BC-backsplash.png){.absolute width="600"}
+
+
+### Services {.smaller }
+
+-   Data analysis
+    -   RNA-seq, ChIP-seq
+    -   scRNA-seq
+    -   DNA-seq
+    -   Other
+-   Project consultations
+-   Method development
+
+### Workshops
+
+-   [Repositories](https://github.com/orgs/bioinformatics-workshop/repositories)
+-   Past workshops
+    -   [Intro to Unix](https://github.com/bioinformatics-workshop/Intro-to-Unix)
+    -   [Intro to R/R-Studio](https://github.com/bioinformatics-workshop/Intro-to-R-RStudio) 
+    -   [Intro to Shell Scripting](https://github.com/bioinformatics-workshop/Intro-to-Shell-Scripting)
+
+### Office Hour
+
+-   Daily (2-3PM)
+-   In-person or via Zoom (by appt)
+-   [Calendly](https://calendly.com/ucr_iigb_bioinfocore)
+
+:::
+
+# Workshop Outline
+
+<br>
+Workshop dates:  
+
+Workshop I: October 18-19, 2023  
+
+Workshop II: October 25-26, 2023  
+
+<br>
+
+:::: {.columns}
+
+::: {.column width="50%"}
+
+**Day One**
+
+-   Introduction to RNA-seq
+-   Data analysis setup
+-   Data QC
+-   Sequence alignment
+:::
+
+::: {.column width="50%"}
+
+**Day Two**
+
+-   Feature quantitation
+-   Data pre-processing
+-   Identify DEGs
+-   Data visualization
+:::
+
+::::
+
+# Day One
+
+## What is RNA-seq? {.smaller}
+
+RNA sequencing or **RNA-seq** is one of many methods used for gene expression studies by obtaining a snapshot of the RNA molecules within a biological system. 
+
+![](img/workflow-bd020139.f1.jpeg)
+
+Reference: [Van den Berge et. al (2019) Annu Rev Biomed Data Sci](https://www.annualreviews.org/doi/10.1146/annurev-biodatasci-072018-021255)
+
+## What is RNA-seq? {.smaller}
+
+**Next-generation sequencing (NGS) technologies**
+
+-   Short-read based (e.g. Illumina)
+    -   35 - 300 bases
+-   Long-read based (e.g., PacBio, Oxford Nanopore)
+    -   Several kilobases
+
+**Sequencing resolution**
+
+-   Bulk tissue (bulk RNA-seq)
+-   Laser-capture microdissection (LCM + RNA-seq)
+-   Single-cell (scRNA-seq)
+-   Spatial transcriptomics (spatial + scRNA-seq)
+
+## Logging in to the server {.smaller}
+<br>
+
+You should receive an email with login information if you've never had an account on the HPCC. For those with an account already, you can use the same credentials to log into the server.
+
+Open up your terminal program (on your Mac or PC) and at the `$` prompt, enter the following command (change `<USERNAME>` to your account name)
+
+::: {.callout-note}
+On the MacOS, there's a built-in terminal program `Terminal` (you can see it in your Applications folder within the Utilities sub-folder). For WinOS, you can download and install the `MobaXterm` application [(link)](https://mobaxterm.mobatek.net).
+:::
+<br>
+```sh
+ssh <USERNAME>@cluster.hpcc.ucr.edu
+
+# example
+ssh bioinfo-workshop@cluster.hpcc.ucr.edu
+```
+
+If connecting for the first time, you'll see a prompt (type yes and press ENTER):
+
+```sh
+The authenticity of host 'sample.ssh.com' cannot be established.
+DSA key fingerprint is 04:48:30:31:b0:f3:5a:9b:01:9d:b3:a7:38:e2:b1:0c.
+Are you sure you want to continue connecting (yes/no)?
+```
+
+Then you'll be ask for authentication password and two-factor validation with DUO.
+
+
+
+
+<br>
+After logging in, create a directory for the workshop.
+
+```sh
+mkdir bioinformatics-workshops
+```
+<br>
+Now change to the newly-created directory
+
+```sh
+cd bioinformatics-workshops
+```
+
+## Downloading/Uploading files from the server {.smaller}
+
+There will be times where you would want to see plots or access files generated on the cluster. For easier access, you can use an SFTP program with a GUI that connects to the server and provides direct access to those files.  
+
+<br>
+There are several free GUI applications including [Filezilla](https://filezilla-project.org), [Cyberduck](https://cyberduck.io), [WinSCP](https://winscp.net/eng/download.php).
+
+These applications are available for MacOS, WinOS, and Linux platforms.
+
+Once you have the application installed, start up the program and follow the instructions to connect to a site.
+
+<br>
+[Click here](https://hpcc.ucr.edu/manuals/hpc_cluster/sharing/#authentication-with-passwordduo) for instructions to connect and authenticate to the cluster using `Filezilla` with password + DUO authentication.
+
+## Setting up the analysis directory {.smaller}
+
+We will clone the GitHub repository for this workshop. The repo is stored at: [GitHub Repo](https://github.com/bioinformatics-workshop/RNA-Seq-Workshop/tree/main)
+
+
+Cloning the repository will download all the files and directories from GitHub to your server/computer.
+
+<br>
+
+Cloning the repository:
+
+```sh
+git clone https://github.com/bioinformatics-workshop/RNA-Seq-Workshop.git
+```
+<br>
+Once the cloning is complete, we can go into the newly-downloaded workshop repository to run our analyses.
+
+```sh
+# change to the workshop directory
+cd RNA-Seq-Workshop
+
+# lists directory content
+ls
+```
+
+<br>
+The home directory structure for the workshop should look like this:
+
+```sh
+├── analysis
+├── code
+├── genome
+├── index
+├── log
+└── raw
+```
+
+::: {.callout-tip}
+
+Cloning the repository will give you the most up-to-date files. To get the latest updates of the repository later on, you don't need to clone again. Instead, you can  `pull` the updates from GitHub to your server/computer. Make sure you are in the home directory of the workshop before running the command.
+
+
+```sh
+git pull
+```
+:::
+
+
+:::{.callout-caution}
+The `pull` command will overwrite any changes you've made locally. If you want to keep the changes and update the new things, you can run:
+
+```sh
+git stash
+git pull
+git stash apply
+```
+
+- `git stash`: This command stashes your local changes, creating a temporary backup.
+- `git pull`: This command fetches the changes from the remote repository and merges them into the local branch.
+- `git stash apply`: This command applies the stashed changes back to the working directory.
+
+Alternatively, if you want a complete reset of your local directory with the updates from GitHub, you can run:
+
+```sh
+git reset --hard HEAD && git clean -f -d && git pull  
+```
+
+- `git reset --hard HEAD`: This command resets the current branch to the HEAD commit of the remote repository, discarding any local changes.
+- `git clean -f -d`: This command removes any untracked files and directories from the working directory.
+- `git pull`: This command fetches the changes from the remote repository and merges them into the local branch.
+:::
+
+
+## Create conda environment {.smaller}
+
+We will create a conda environment containing bioinformatics software packages not readily available on the cluster for data processing and analysis. This conda environment includes special R packages (e.g., EnhancedVolcano) and software (e.g., multiqc).
+
+
+<br>
+
+To create the conda environment:
+
+```sh
+sbatch code/create-conda-env.sh
+```
+**Note**: *This step can take anywhere from 25-45 minutes. However, it's running in the background so we can come back to it later.*
+
+<br>
+To make sure the conda environment was created successfully, we can activate the conda environment:
+
+```sh
+conda activate DEG-analysis
+```
+
+<br>
+You should now see the environment `(DEG-analysis)` next to your `$` prompt.
+
+```sh
+(DEG-analysis) $
+```
+
+::: {.callout-tip}
+To get out of the conda environment, type:
+
+```sh
+conda deactivate
+```
+The environment name in parentheses should now disappear.
+:::
+
+
+## Submitting jobs on the cluster {.smaller}
+
+For this workshop, we will submit jobs to the cluster (to run in the background).
+
+Example job submission:
+
+```sh
+sbatch code/multiqc.sh
+```
+
+The submitted job will have a six-digit JOBID. To check on the status of your submitted job(s),
+
+```sh
+# Show all jobs from USER
+squeue -u <USERNAME>
+
+# Show specific job with JOBID
+scontrol show job <JOBID>
+```
+
+To cancel a submitted job, use the JOBID.
+
+```sh
+# To delete a single job
+scancel -i <JOBID>
+scancel <JOBID>
+
+# To delete all jobs for a user
+scancel -u <USERNAME>
+```
+
+:::{.callout-tip}
+All submitted jobs will generate a log file (stored in the `log` folder) containing the JOBNAME_JOBID.log
+
+- JOBNAME (e.g., fastqc, trim_galore)
+
+You can take a look at the log file to see standard output/errors from running the script.
+:::
+
+
+
+## Analysis Toolkit {.smaller}
+
+
+
+| Program	| Type	| Software	| Reference	| Misc	|
+|---	|---	|---	|---	|----	|
+| Fastqc	| QC	| [Software](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/)	| [Ref](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/)	| 	|
+| Trim_galore	| QC	| [Software](https://www.bioinformatics.babraham.ac.uk/projects/trim_galore/)	| [Ref](https://zenodo.org/records/7598955)	| 	|
+| Multiqc	| QC 	| [Software](https://multiqc.info)	| [Ref](https://academic.oup.com/bioinformatics/article/32/19/3047/2196507)	| [Manual](https://multiqc.info/docs/)	|
+| STAR	| Alignment| [Software](https://github.com/alexdobin/STAR/releases)  	| [Ref](https://academic.oup.com/bioinformatics/article/29/1/15/272537)	| [Manual](https://github.com/alexdobin/STAR/blob/master/doc/STARmanual.pdf)	|
+| FeatureCounts	| Quantification	| [Software](https://sourceforge.net/projects/subread/files/subread-2.0.6/)	| [Ref](https://academic.oup.com/bioinformatics/article/30/7/923/232889)	|	|
+| DESeq2	| Differential Expression	| [Software](https://www.bioconductor.org/packages/release/bioc/html/DESeq2.html)	| [Ref](https://genomebiology.biomedcentral.com/articles/10.1186/s13059-014-0550-8)	| [Guide](https://bioconductor.org/packages/devel/bioc/vignettes/DESeq2/inst/doc/DESeq2.html) 	|
+| IGV	| Visualization	| [Software](https://igv.org/doc/desktop/)	| [Ref](https://academic.oup.com/bib/article/14/2/178/208453) 	| [Web App](https://igv.org/app/)       	|
+| R	| Other	| [Software](https://cran.r-project.org)	| [Ref](https://www.R-project)	|	|
+| Tidyverse	| Other 	| [Software](https://www.tidyverse.org)	| [Ref](https://joss.theoj.org/papers/10.21105/joss.01686)	|   	|
+| EnhancedVolcano	| Other 	| [Software](https://bioconductor.org/packages/release/bioc/html/EnhancedVolcano.html) 	| [Ref](https://github.com/kevinblighe/EnhancedVolcano)	|	|
+
+
+## Sample Dataset Demo {.smaller}
+
+<br>
+
+| Category 	| Description 	|
+|---	|---	|
+| **BioProject** 	| PRJNA950346 	|
+| **GEO Series** 	| [GSE228555](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE228555) 	|
+| **Title** 	| Transcriptome expression of WT and mir163 mutant 	|
+| **Organism** 	| Arabidopsis thaliana 	|
+| **Ecotype** 	| Col-0 	|
+| **Genotype** 	| WT, miR163 mutant 	|
+| **Replicates** 	| 3 	|
+| **Tissue** 	| Seedlings 	|
+| **Library kit** 	| NEBNext® Ultra™ RNA Library Prep Kit for Illumina (non-stranded) 	|
+| **Sequencing** 	| Illumina paired-end 150bp 	|
+
+## Workflow Outline {.smaller}
+
+-   Create metadata
+-   QC using `Fastqc` and `trim_galore`
+-   Genome indexing for `STAR` aligner
+-   Sequence alignment with `STAR`
+-   Gene quantification using `featureCounts`
+-   Differential expression analysis with `DESeq2`
+-   Data visualization in IGV
+
+## Data Preparation - Create metadata {.smaller}
+
+Generate a `metadata.csv` file containing information about the dataset. The metadata will be used for processing and differential expression analysis.
+
+:::: {.columns}
+
+::: {.column}
+Metadata Header
+```sh
+srr_id
+ecotype
+genotype
+treatment
+tissue
+biorep
+samplename
+fq1
+fq2
+```
+:::
+
+::: {.column}
+Description
+```sh
+SRR ID from the SRA run
+Col-0
+WT, miR163_mut
+7-day-old plants
+seedlings
+1,2,3
+wt_1,wt_2,wt_3,mir163_1,mir163_2, mir163_3
+raw/SRRxxxx_1.fastq.gz
+raw/SRRxxxx_2.fastq.gz
+```
+
+:::
+
+::::
+
+::: {.callout-note}
+An extensive metadata file describes the samples in detail. However, the minimum metadata file should contain the following:
+
+- samplename (sometime it's the same name as the fastq file), 
+- condition/treatment/genotype 
+- fq1/fq2
+
+Other metadata info can include:
+
+- time point
+- technical replicate
+- sequencing batch
+- library kits
+
+:::
+
+<br>
+
+:::{.panel-tabset}
+
+### metadata.csv
+
+This file contains the metadata for the full dataset
+
+```sh
+srr_id,ecotype,genotype,treatment,tissue,biorep,samplename,fq1,fq2
+SRR24016000,Col-0,miR163_mut,7-day-old seedlings without treatment,seedlings,1,mir163_1,raw/SRR24016000_1.fastq.gz,raw/SRR24016000_2.fastq.gz
+SRR24016001,Col-0,miR163_mut,7-day-old seedlings without treatment,seedlings,2,mir163_2,raw/SRR24016001_1.fastq.gz,raw/SRR24016001_2.fastq.gz
+SRR24016002,Col-0,miR163_mut,7-day-old seedlings without treatment,seedlings,3,mir163_3,raw/SRR24016002_1.fastq.gz,raw/SRR24016002_2.fastq.gz
+SRR24016003,Col-0,wt,7-day-old seedlings without treatment,seedlings,1,wt_1,raw/SRR24016003_1.fastq.gz,raw/SRR24016003_2.fastq.gz
+SRR24016004,Col-0,wt,7-day-old seedlings without treatment,seedlings,2,wt_2,raw/SRR24016004_1.fastq.gz,raw/SRR24016004_2.fastq.gz
+SRR24016005,Col-0,wt,7-day-old seedlings without treatment,seedlings,3,wt_3,raw/SRR24016005_1.fastq.gz,raw/SRR24016005_2.fastq.gz
+```
+
+### metadata_sub1M.csv
+
+This file contains the metadata referencing the 1M sub-sampled dataset
+
+```sh
+srr_id,ecotype,genotype,treatment,tissue,biorep,samplename,fq1,fq2
+SRR24016000_sub1M,Col-0,miR163_mut,7-day-old seedlings without treatment,seedlings,1,mir163_1,raw/SRR24016000_sub1M_1.fastq.gz,raw/SRR24016000_sub1M_2.fastq.gz
+SRR24016001_sub1M,Col-0,miR163_mut,7-day-old seedlings without treatment,seedlings,2,mir163_2,raw/SRR24016001_sub1M_1.fastq.gz,raw/SRR24016001_sub1M_2.fastq.gz
+SRR24016002_sub1M,Col-0,miR163_mut,7-day-old seedlings without treatment,seedlings,3,mir163_3,raw/SRR24016002_sub1M_1.fastq.gz,raw/SRR24016002_sub1M_2.fastq.gz
+SRR24016003_sub1M,Col-0,wt,7-day-old seedlings without treatment,seedlings,1,wt_1,raw/SRR24016003_sub1M_1.fastq.gz,raw/SRR24016003_sub1M_2.fastq.gz
+SRR24016004_sub1M,Col-0,wt,7-day-old seedlings without treatment,seedlings,2,wt_2,raw/SRR24016004_sub1M_1.fastq.gz,raw/SRR24016004_sub1M_2.fastq.gz
+SRR24016005_sub1M,Col-0,wt,7-day-old seedlings without treatment,seedlings,3,wt_3,raw/SRR24016005_sub1M_1.fastq.gz,raw/SRR24016005_sub1M_2.fastq.gz
+```
+:::
+
+## Examining the raw data (FASTQ) {.smaller}
+
+Fastq files contain the raw sequence and the base quality score. 
+Each sequence is comprised of four lines.
+
+<br>
+Description for each line
+```sh
+The sequence header (starts with @) and contain identifiers for the read
+The sequence
+'+'
+Base quality scores 
+```
+
+```{.sh eval=FALSE code-line-numbers="|1,5,9,13|2,6,10,14|3,7,11,15|4,8,12,16"}
+@VH01192:45:AAC7JMMM5:1:1101:19973:1000 1:N:0:AGTTCAGG+TCTGTTGG
+NATGGGACAGACATGCTGGCGGCACTCACTCACTTGGGCGGCTTAGATCGGAAGAGCACACGTCTGAACTCCAGTCACAGTTCAGGATCTCGTATTCCCTTTTTTTTTTGTAAATTTTTGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG
++
+#-C;;CCCCC-C-CCCCCCCCC-CCCCCCCCCCCCCCCCCCC-CCCCCCCC-CC-CCCCCCCCC-CC-CCCCCCCCC;-C--CC-CCCC--CC-C--;---;C----;-;CC-------C-C-C-C--CCCC-;C;CCC-CCCCCCCCCCC
+@VH01192:45:AAC7JMMM5:1:1101:20125:1000 1:N:0:AGTTCAGG+TCTGTTGG
+NCCCAGCCCCAGCGACTCCTAATAAAGCATTTCAGCAAATAAAAAAAAAAAAAAAAAGATCGGAAGAGCACACGTCTGAACTCAAGTCACAGTTCAGGATGTGGTTTTTGGTTTTTTTTTTTTTAAATTTTGGGGGGGGGGGGGGGGGGGG
++
+#CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC--CCCCCCCCCCCCCCCC;CCCC-CCCCCCCCCC---C-C---C-CC-CCCCC;CC-CC-C--;C-CC-------C-C---C-C----CC;C-CCCC;C;CCCCCCCCCCCC
+@VH01192:45:AAC7JMMM5:1:1101:21034:1000 1:N:0:AGTTCAGG+TCTGTTGG
+NTTGCAATGCTCAATAAGTCTATTCCACCTCAGTGTCCTTTTTAAAGAGTTTTGGAAAAAAAAAAAAAAAAAAAGATCGTAAGAGCACACGTCTGAACTCCAGTCACAGTTCAGGTTGTGGGTTTTCGTGTTTTTGTTTTTATTTTTGGGG
++
+#CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC-CCCCC;C;CCCCCCCCCCCCCCCCCCCCCCCCCC-CC;C-CC-C;CCCCCC;C;CC-CCCCC;;;CCC-;;C;-;-C---C-C;;;--C-CCCC---C;C-----C;--C-
+@VH01192:45:AAC7JMMM5:1:1101:21488:1000 1:N:0:AGTTCAGG+TCTGTTGG
+NCCTCAAAAAAAAAAAAAAAAAAAAAAAAAATTTGGTATGTGAAATTTTTTTAATACATTTAAATTTTATGTTTTTGTTTTTCTTTTTTTTTTTTTTAAATATTGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG
++
+#CCCCCCCCCCCCCCCCCCCCCCCCCCCCC-;---C-C;-;------CCCCCC;--CC--C-C-;-C-C--;C;-----C-C--CCCC-C--;C-C---C-;C;-C-C;CCCCCCCCC;CCCCC-CCCCCCCCCCC;C;CCCCCCCC;CCC
+```
+
+## Exploring the FASTQ file header {.smaller}
+<br>
+Sample header: 
+<br>
+@VH01192:45:AAC7JMMM5:1:1101:19973:1000 1:N:0:AGTTCAGG+TCTGTTGG
+<br>
+
+:::: {.columns}
+
+::: {.column width="40%"}
+Header Value
+```sh
+VH01192
+45
+AAC7JMMM5
+1
+1101
+19973
+1000
+1
+N
+0
+AGTTCAGG+TCTGTTGG
+```
+:::
+
+::: {.column width="60%"}
+Header Description
+```sh
+unique instrument id
+run id
+flowcell id
+flowcell lane
+tile number within the flowcell lane
+x-coordinate of the cluster within the tile
+y-coordinate of the cluster within the tile
+Member of a read/mate pair, 1 or 2
+Y if the read is filtered, N otherwise
+0 when none of the control bits are on
+Index sequence
+```
+:::
+ 
+::::
+
+## Step I - QC {.smaller}
+<br>
+We will run QC on the raw data using `fastqc` and `trim_galore`. 
+
+<br>
+`fastqc` will generate stats of the raw reads including:
+
+  -  Base quality score distribution
+  -  GC content
+  -  Sequence duplication
+
+<br>
+`trim_galore` will remove adapters in the sequence and can remove N bases or bases with low quality score. `trim_galore` will also run `fastqc` on the trimmed dataset.
+
+<br>
+
+::: {.panel-tabset}
+
+### Job submission
+
+```sh
+while IFS=, read -r srr_id eco geno trt tiss biorep samplename fq1 fq2
+do
+  sbatch code/fastqc.sh ${srr_id}
+  sbatch code/trim_galore.sh $samplename $fq1 $fq2
+done < <(tail -n +2 raw/metadata_sub1M.csv)
+```
+
+### Fastqc Output
+
+[Good data example](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/good_sequence_short_fastqc.html)
+
+[Bad data example](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/bad_sequence_fastqc.html)
+
+```sh
+$ ls analysis/fastqc
+SRR24016000_sub1M_1_fastqc.html
+SRR24016000_sub1M_1_fastqc.zip
+SRR24016000_sub1M_2_fastqc.html
+SRR24016000_sub1M_2_fastqc.zip
+SRR24016001_sub1M_1_fastqc.html
+SRR24016001_sub1M_1_fastqc.zip
+SRR24016001_sub1M_2_fastqc.html
+SRR24016001_sub1M_2_fastqc.zip
+SRR24016002_sub1M_1_fastqc.html
+SRR24016002_sub1M_1_fastqc.zip
+SRR24016002_sub1M_2_fastqc.html
+SRR24016002_sub1M_2_fastqc.zip
+SRR24016003_sub1M_1_fastqc.html
+SRR24016003_sub1M_1_fastqc.zip
+SRR24016003_sub1M_2_fastqc.html
+SRR24016003_sub1M_2_fastqc.zip
+SRR24016004_sub1M_1_fastqc.html
+SRR24016004_sub1M_1_fastqc.zip
+SRR24016004_sub1M_2_fastqc.html
+SRR24016004_sub1M_2_fastqc.zip
+SRR24016005_sub1M_1_fastqc.html
+SRR24016005_sub1M_1_fastqc.zip
+SRR24016005_sub1M_2_fastqc.html
+SRR24016005_sub1M_2_fastqc.zip
+```
+
+### Trim_galore Output
+
+The **'val_1'** and **'val_2'** files are the validated files after `trim_galore` processing. These files will be the input for the `STAR` alignment.
+
+```sh
+$ ls analysis/trim_galore
+mir163_1_val_1_fastqc.html
+mir163_1_val_1_fastqc.zip
+mir163_1_val_1.fq.gz
+mir163_1_val_2_fastqc.html
+mir163_1_val_2_fastqc.zip
+mir163_1_val_2.fq.gz
+mir163_2_val_1_fastqc.html
+mir163_2_val_1_fastqc.zip
+mir163_2_val_1.fq.gz
+mir163_2_val_2_fastqc.html
+mir163_2_val_2_fastqc.zip
+mir163_2_val_2.fq.gz
+mir163_3_val_1_fastqc.html
+mir163_3_val_1_fastqc.zip
+mir163_3_val_1.fq.gz
+mir163_3_val_2_fastqc.html
+mir163_3_val_2_fastqc.zip
+mir163_3_val_2.fq.gz
+SRR24016000_sub1M_1.fastq.gz_trimming_report.txt
+SRR24016000_sub1M_2.fastq.gz_trimming_report.txt
+SRR24016001_sub1M_1.fastq.gz_trimming_report.txt
+SRR24016001_sub1M_2.fastq.gz_trimming_report.txt
+SRR24016002_sub1M_1.fastq.gz_trimming_report.txt
+SRR24016002_sub1M_2.fastq.gz_trimming_report.txt
+SRR24016003_sub1M_1.fastq.gz_trimming_report.txt
+SRR24016003_sub1M_2.fastq.gz_trimming_report.txt
+SRR24016004_sub1M_1.fastq.gz_trimming_report.txt
+SRR24016004_sub1M_2.fastq.gz_trimming_report.txt
+SRR24016005_sub1M_1.fastq.gz_trimming_report.txt
+SRR24016005_sub1M_2.fastq.gz_trimming_report.txt
+wt_1_val_1_fastqc.html
+wt_1_val_1_fastqc.zip
+wt_1_val_1.fq.gz
+wt_1_val_2_fastqc.html
+wt_1_val_2_fastqc.zip
+wt_1_val_2.fq.gz
+wt_2_val_1_fastqc.html
+wt_2_val_1_fastqc.zip
+wt_2_val_1.fq.gz
+wt_2_val_2_fastqc.html
+wt_2_val_2_fastqc.zip
+wt_2_val_2.fq.gz
+wt_3_val_1_fastqc.html
+wt_3_val_1_fastqc.zip
+wt_3_val_1.fq.gz
+wt_3_val_2_fastqc.html
+wt_3_val_2_fastqc.zip
+wt_3_val_2.fq.gz
+```
+
+:::
+
+## Step II - STAR Indexing {.smaller}
+
+To run the STAR aligner, we first need to create an index of the genome.
+
+To generate an index, you'll need the following files:
+
+- FASTA: Fasta file containing sequences of all the chromosomes/scaffolds for the genome
+- GTF/GFF: General Transfer Format (GTF) or General Feature Format (GFF)
+
+::: {.callout-note}
+You only need to run the indexing step once. The indexed files can be used for alignments for all subsequent samples
+:::
+
+::: {.callout-warning}
+For assembled genomes containing large number of scaffolds or large genomes, this process can take some time and may require adjusting the indexing parameters.
+:::
+
+
+::: {.panel-tabset}
+
+### Job submission
+
+```sh
+sbatch code/STAR-index.sh
+```
+
+### Fasta File
+
+```sh
+>Chr1 CHROMOSOME dumped from ADB: Jun/20/09 14:53; last updated: 2009-02-02
+CCCTAAACCCTAAACCCTAAACCCTAAACCTCTGAATCCTTAATCCCTAAATCCCTAAATCTTTAAATCCTACATCCAT
+GAATCCCTAAATACCTAATTCCCTAAACCCGAAACCGGTTTCTCTGGTTGAAAATCATTGTGTATATAATGATAATTTT
+ATCGTTTTTATGTAATTGCTTATTGTTGTGTGTAGATTTTTTAAAAATATCATTTGAGGTCAATACAAATCCTATTTCT
+TGTGGTTTTCTTTCCTTCACTTAGCTATGGATGGTTTATCTTCATTTGTTATATTGGATACAAGCTTTGCTACGATCTA
+CATTTGGGAATGTGAGTCTCTTATTGTAACCTTAGGGTTGGTTTATCTCAAGAATCTTATTAATTGTTTGGACTGTTTA
+TGTTTGGACATTTATTGTCATTCTTACTCCTTTGTGGAAATGTTTGTTCTATCAATTTATCTTTTGTGGGAAAATTATT
+TAGTTGTAGGGATGAAGTCTTTCTTCGTTGTTGTTACGCTTGTCATCTCATCTCTCAATGATATGGGATGGTCCTTTAG
+```
+### GTF File
+
+```{.sh eval=False code-line-numbers="|1-16"}
+Chr1    Araport11       5UTR    3631    3759    .       +       .       transcript_id "AT1G01010.1"; gene_id "AT1G01010"
+Chr1    Araport11       exon    3631    3913    .       +       .       transcript_id "AT1G01010.1"; gene_id "AT1G01010"
+Chr1    Araport11       start_codon     3760    3762    .       +       .       transcript_id "AT1G01010.1"; gene_id "AT1G01010"
+Chr1    Araport11       CDS     3760    3913    .       +       0       transcript_id "AT1G01010.1"; gene_id "AT1G01010"
+Chr1    Araport11       exon    3996    4276    .       +       .       transcript_id "AT1G01010.1"; gene_id "AT1G01010"
+Chr1    Araport11       CDS     3996    4276    .       +       2       transcript_id "AT1G01010.1"; gene_id "AT1G01010"
+Chr1    Araport11       exon    4486    4605    .       +       .       transcript_id "AT1G01010.1"; gene_id "AT1G01010"
+Chr1    Araport11       CDS     4486    4605    .       +       0       transcript_id "AT1G01010.1"; gene_id "AT1G01010"
+Chr1    Araport11       exon    4706    5095    .       +       .       transcript_id "AT1G01010.1"; gene_id "AT1G01010"
+Chr1    Araport11       CDS     4706    5095    .       +       0       transcript_id "AT1G01010.1"; gene_id "AT1G01010"
+Chr1    Araport11       exon    5174    5326    .       +       .       transcript_id "AT1G01010.1"; gene_id "AT1G01010"
+Chr1    Araport11       CDS     5174    5326    .       +       0       transcript_id "AT1G01010.1"; gene_id "AT1G01010"
+Chr1    Araport11       CDS     5439    5630    .       +       0       transcript_id "AT1G01010.1"; gene_id "AT1G01010"
+Chr1    Araport11       exon    5439    5899    .       +       .       transcript_id "AT1G01010.1"; gene_id "AT1G01010"
+Chr1    Araport11       stop_codon      5628    5630    .       +       .       transcript_id "AT1G01010.1"; gene_id "AT1G01010"
+Chr1    Araport11       3UTR    5631    5899    .       +       .       transcript_id "AT1G01010.1"; gene_id "AT1G01010"
+Chr1    Araport11       exon    6788    7069    .       -       .       transcript_id "AT1G01020.2"; gene_id "AT1G01020"
+Chr1    Araport11       3UTR    6788    7069    .       -       .       transcript_id "AT1G01020.2"; gene_id "AT1G01020"
+Chr1    Araport11       3UTR    7157    7314    .       -       .       transcript_id "AT1G01020.2"; gene_id "AT1G01020"
+```
+
+### GFF File
+
+```sh
+##gff-version   3
+Chr1    Araport11       gene    3631    5899    .       +       .       ID=AT1G01010;Name=AT1G01010;Note=NAC domain containing protein 1;symbol=NAC001;Alias=ANAC001,NAC domain containing protein 1;full_name=NAC domain containing protein 1;computational_description=NAC domain containing protein 1 (NAC001)%3B FUNCTIONS IN: sequence-specific DNA binding transcription factor activity%3B INVOLVED IN: multicellular organismal development%2C regulation of transcription%3B LOCATED IN: cellular_component unknown%3B EXPRESSED IN: 7 plant structures%3B EXPRESSED DURING: 4 anthesis%2C C globular stage%2C petal differentiation and expansion stage%3B CONTAINS InterPro DOMAIN/s: No apical meristem (NAM) protein (InterPro:IPR003441)%3B BEST Arabidopsis thaliana protein match is: NAC domain containing protein 69 (TAIR:AT4G01550.1)%3B Has 2503 Blast hits to 2496 proteins in 69 species: Archae - 0%3B Bacteria - 0%3B Metazoa - 0%3B Fungi - 0%3B Plants - 2502%3B Viruses - 0%3B Other Eukaryotes - 1 (source: NCBI BLink).;Dbxref=PMID:11118137,PMID:12820902,PMID:15029955,PMID:15010618,PMID:15108305,PMID:15173566,PMID:15282545,PMID:16504176,PMID:16547105,PMID:16524982,PMID:16720694,PMID:16552445,PMID:17339215,PMID:17448460,PMID:17447913,PMID:18650403,PMID:20736450,PMID:24377444,locus:2200935;locus_type=protein_coding
+Chr1    Araport11       mRNA    3631    5899    .       +       .       ID=AT1G01010.1;Parent=AT1G01010;Name=AT1G01010.1;Note=NAC domain containing protein 1;conf_class=2;symbol=NAC001;Alias=ANAC001,NAC domain containing protein 1;full_name=NAC domain containing protein 1;computational_description=NAC domain containing protein 1 (NAC001)%3B FUNCTIONS IN: sequence-specific DNA binding transcription factor activity%3B INVOLVED IN: multicellular organismal development%2C regulation of transcription%3B LOCATED IN: cellular_component unknown%3B EXPRESSED IN: 7 plant structures%3B EXPRESSED DURING: 4 anthesis%2C C globular stage%2C petal differentiation and expansion stage%3B CONTAINS InterPro DOMAIN/s: No apical meristem (NAM) protein (InterPro:IPR003441)%3B BEST Arabidopsis thaliana protein match is: NAC domain containing protein 69 (TAIR:AT4G01550.1)%3B Has 2503 Blast hits to 2496 proteins in 69 species: Archae - 0%3B Bacteria - 0%3B Metazoa - 0%3B Fungi - 0%3B Plants - 2502%3B Viruses - 0%3B Other Eukaryotes - 1 (source: NCBI BLink).;conf_rating=****;Dbxref=PMID:11118137,gene:2200934,UniProt:Q0WV96
+Chr1    Araport11       five_prime_UTR  3631    3759    .       +       .       ID=AT1G01010:five_prime_UTR:1;Parent=AT1G01010.1;Name=NAC001:five_prime_UTR:1
+Chr1    Araport11       exon    3631    3913    .       +       .       ID=AT1G01010:exon:1;Parent=AT1G01010.1;Name=NAC001:exon:1
+Chr1    Araport11       CDS     3760    3913    .       +       0       ID=AT1G01010:CDS:1;Parent=AT1G01010.1;Name=NAC001:CDS:1
+Chr1    Araport11       exon    3996    4276    .       +       .       ID=AT1G01010:exon:2;Parent=AT1G01010.1;Name=NAC001:exon:2
+Chr1    Araport11       CDS     3996    4276    .       +       2       ID=AT1G01010:CDS:2;Parent=AT1G01010.1;Name=NAC001:CDS:2
+Chr1    Araport11       exon    4486    4605    .       +       .       ID=AT1G01010:exon:3;Parent=AT1G01010.1;Name=NAC001:exon:3
+Chr1    Araport11       CDS     4486    4605    .       +       0       ID=AT1G01010:CDS:3;Parent=AT1G01010.1;Name=NAC001:CDS:3
+Chr1    Araport11       exon    4706    5095    .       +       .       ID=AT1G01010:exon:4;Parent=AT1G01010.1;Name=NAC001:exon:4
+Chr1    Araport11       CDS     4706    5095    .       +       0       ID=AT1G01010:CDS:4;Parent=AT1G01010.1;Name=NAC001:CDS:4
+Chr1    Araport11       exon    5174    5326    .       +       .       ID=AT1G01010:exon:5;Parent=AT1G01010.1;Name=NAC001:exon:5
+Chr1    Araport11       CDS     5174    5326    .       +       0       ID=AT1G01010:CDS:5;Parent=AT1G01010.1;Name=NAC001:CDS:5
+Chr1    Araport11       CDS     5439    5630    .       +       0       ID=AT1G01010:CDS:6;Parent=AT1G01010.1;Name=NAC001:CDS:6
+Chr1    Araport11       exon    5439    5899    .       +       .       ID=AT1G01010:exon:6;Parent=AT1G01010.1;Name=NAC001:exon:6
+Chr1    Araport11       three_prime_UTR 5631    5899    .       +       .       ID=AT1G01010:three_prime_UTR:1;Parent=AT1G01010.1;Name=NAC001:three_prime_UTR:1
+```
+:::
+
+## Step III - STAR Alignment {.smaller}
+
+Now we can align the reads from each sample to the indexed reference genome.
+
+Depending on the sequencing depth, this step can take a 
+
+::: {.panel-tabset}
+
+### Job submission
+
+```sh
+while IFS=, read -r srr_id eco geno trt tiss biorep samplename fq1 fq2
+do
+  sbatch code/STAR-align.sh $samplename
+done < <(tail -n +2 raw/metadata_sub1M.csv)
+```
+
+
+### Output
+
+```{.sh eval=false code-line-numbers="|2-3|4"}
+$ ls analysis/star
+wt_1_Aligned.sortedByCoord.out.bam
+wt_1_Aligned.sortedByCoord.out.bam.bai
+wt_1_Log.final.out
+wt_1_Log.out
+wt_1_Log.progress.out
+wt_1_ReadsPerGene.out.tab
+wt_1_Signal.UniqueMultiple.str1.out.wig
+wt_1_Signal.UniqueMultiple.str2.out.wig
+wt_1_Signal.Unique.str1.out.wig
+wt_1_Signal.Unique.str2.out.wig
+wt_1_SJ.out.tab
+```
+### Log file (Log.final.out)
+
+```{.sh eval=false code-line-numbers="|7-8|10-11"}
+$ less analysis/star/wt_1_Log.final.out
+                                 Started job on |       Oct 27 15:12:05
+                             Started mapping on |       Oct 27 15:12:05
+                                    Finished on |       Oct 27 15:13:29
+       Mapping speed, Million of reads per hour |       42.77
+
+                          Number of input reads |       997854
+                      Average input read length |       297
+                                    UNIQUE READS:
+                   Uniquely mapped reads number |       939014
+                        Uniquely mapped reads % |       94.10%
+                          Average mapped length |       291.73
+                       Number of splices: Total |       904715
+            Number of splices: Annotated (sjdb) |       0
+                       Number of splices: GT/AG |       894390
+                       Number of splices: GC/AG |       8458
+                       Number of splices: AT/AC |       419
+               Number of splices: Non-canonical |       1448
+                      Mismatch rate per base, % |       0.00%
+                         Deletion rate per base |       0.00%
+                        Deletion average length |       1.50
+                        Insertion rate per base |       0.00%
+                       Insertion average length |       1.21
+                             MULTI-MAPPING READS:
+        Number of reads mapped to multiple loci |       0
+             % of reads mapped to multiple loci |       0.00%
+        Number of reads mapped to too many loci |       18952
+             % of reads mapped to too many loci |       1.90%
+                                  UNMAPPED READS:
+  Number of reads unmapped: too many mismatches |       0
+       % of reads unmapped: too many mismatches |       0.00%
+            Number of reads unmapped: too short |       39869
+                 % of reads unmapped: too short |       4.00%
+                Number of reads unmapped: other |       19
+                     % of reads unmapped: other |       0.00%
+                                  CHIMERIC READS:
+                       Number of chimeric reads |       0
+                            % of chimeric reads |       0.00%
+```
+:::
+
+## Anatomy of the alignment file {.smaller}
+
+The alignment information are stored in a sequence alignment map (SAM) file. This file can be large depending on the number of sequenced reads. Therefore, SAM files are generally converted to a BAM (binary compressed version of SAM) file to reduce storage space but requires software (e.g., `samtools`) in order to see the file content. 
+
+<br>
+Sequence alignment map (SAM) format official documentation is available [here](http://samtools.github.io/hts-specs/SAMv1.pdf). The SAM file consists of header rows and rows for each read. Each row contains 11 mandatory fields. 
+
+```{.sh eval=False code-line-numbers="|1-11|12-17"}
+@HD     VN:1.4  SO:coordinate
+@SQ     SN:Chr1 LN:30427671
+@SQ     SN:Chr2 LN:19698289
+@SQ     SN:Chr3 LN:23459830
+@SQ     SN:Chr4 LN:18585056
+@SQ     SN:Chr5 LN:26975502
+@SQ     SN:ChrC LN:154478
+@SQ     SN:ChrM LN:366924
+@PG     ID:STAR PN:STAR VN:2.7.9a       CL:STAR   --runMode alignReads      --runThreadN 16   --genomeDir index   --readFilesIn analysis/trim_galore/wt_1_val_1.fq.gz   analysis/trim_galore/wt_1_val_2.fq.gz      --readFilesCommand zcat      --outFileNamePrefix analysis/star/wt_1_   --outSAMtype BAM   SortedByCoordinate      --outWigType wiggle      --outFilterMultimapNmax 1   --outFilterMismatchNmax 0   --quantMode GeneCounts   
+@PG     ID:samtools     PN:samtools     PP:STAR VN:1.18 CL:samtools view -h ../demo_files/analysis/star/wt_1_Aligned.sortedByCoord.out.bam
+@CO     user command line: STAR --runThreadN 16 --runMode alignReads --genomeDir index --readFilesCommand zcat --outSAMtype BAM SortedByCoordinate --outFileNamePrefix analysis/star/wt_1_ --outFilterMismatchNmax 0 --outFilterMultimapNmax 1 --quantMode GeneCounts --outWigType wiggle --readFilesIn analysis/trim_galore/wt_1_val_1.fq.gz analysis/trim_galore/wt_1_val_2.fq.gz
+A00738:657:H72KHDSX7:1:2513:31566:1110  163     chr01   2960    255     150M    =       3065    254     CACCCACAGGCACCACCGTCCTTGTTGGTAATGAAGAAGACGAGACGACGACTTCCCCACTAGGAAACACGACGGAGGCGGAGATGATCGACGGCGGAGAGAGCTACAGAAACATCGATGCCTCCTGTCCAATCCCCCCATCCCATTCGG  FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF:FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF  NH:i:1  HI:i:1  AS:i:297        nM:i:0
+A00738:657:H72KHDSX7:1:1330:26928:13870 99      chr01   2983    255     149M    =       3071    223     GTTGGTAATGAAGAAGACGAGACGACGACTTCCCCACTAGGAAACACGACGGAGGCGGAGATGATCGACGGCGGAGAGAGCTACAGAAACATCGATGCCTCCTGTCCAATCCCCCCATCCCATTCGGTAGTTGGATTGAAGACTACCGA   FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF:FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF:FFFF   NH:i:1  HI:i:1  AS:i:282        nM:i:0
+A00738:657:H72KHDSX7:1:1159:8594:10551  163     chr01   3001    255     150M    =       3069    218     GAGACGACGACTTCCCCACTAGGAAACACGACGGAGGCGGAGATGATCGACGGCGGAGAGAGCTACAGAAACATCGATGCCTCCTGTCCAATCCCCCCATCCCATTCGGTAGTTGGATTGAAGACTACCGAATAAGAGAAGCAGGCAGGC  FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF:FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF  NH:i:1  HI:i:1  AS:i:298        nM:i:0
+A00738:657:H72KHDSX7:1:1640:6551:15311  163     chr01   3006    255     149M    =       3088    232     GACGACTTCCCCACTAGGAAACACGACGGAGGCGGAGATGATCGACGGCGGAGAGAGCTACAGAAACATCGATGCCTCCTGTCCAATCCCCCCATCCCATTCGGTAGTTGGATTGAAGACTACCGAATAAGAGAAGCAGGCAGGCAGAC   FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF   NH:i:1  HI:i:1  AS:i:297        nM:i:0
+A00738:657:H72KHDSX7:1:2574:25084:30937 99      chr01   3007    255     149M    =       3207    448     ACGACTTCCCCACTAGGAAACACGACGGAGGCGGAGATGATCGACGGCGGAGAGAGCTACAGAAACATCGATGCCTCCTGTCCAATCCCCCCATCCCATTCGGTAGTTGGATTGAAGACTACCGAATAAGAGAAGCAGGCAGGCAGACA   FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF:FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF,FFFFFFFFFFFFFFF:FF   NH:i:1  HI:i:1  AS:i:297        nM:i:0
+A00738:657:H72KHDSX7:1:1327:12717:27023 99      chr01   3008    255     149M    =       3086    227     CGACTTCCCCACTAGGAAACACGACGGAGGCGGAGATGATCGACGGCGGAGAGAGCTACAGAAACATCGATGCCTCCTGTCCAATCCCCCCATCCCATTCGGTAGTTGGATTGAAGACTACCGAATAAGAGAAGCAGGCAGGCAGACAA   FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF:FFFFFFFFFFFFFFFFFFFFFFFFFFFF:FFFFFFFFFFFFFFFF   NH:i:1  HI:i:1  AS:i:296        nM:i:0
+```
+<br>
+
+:::: {.columns}
+
+::: {.column width="40%"}
+SAM Header
+```{.sh code-line-numbers="|2|6"}
+A00738:657:H72KHDSX7:1:1327:12717:27023
+99      
+chr01
+3008
+255
+149M
+= 
+3086
+227   
+CGACTTCCCCACTAGGAAACACGACGGAGGCGGAGATGATCGACGGCGGAGAGAGCTACAGAAACATCGATGCCTCCTGTCCAATCCCCCCATCCCATTCGGTAGTTGGATTGAAGACTACCGAATAAGAGAAGCAGGCAGGCAGACAA
+FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF:FFFFFFFFFFFFFFFFFFFFFFFFFFFF:FFFFFFFFFFFFFFFF
+NH:i:1  HI:i:1  AS:i:296  nM:i:0
+```
+:::
+
+::: {.column width="60%"}
+Header Description
+```{.sh code-line-numbers="|2|6"}
+Sequence identifier
+SAM FLAG
+Reference sequence name (chromosome/scaffold)
+1-based leftmost mapping position
+Mapping quality (MAPQ)
+CIGAR string
+Reference name of mate
+Position of mate
+Observed Template length
+Sequence
+Base quality
+Optional fields
+```
+:::
+
+::::
+
+<br>
+For decoding the SAM Flags, check out this [website](https://broadinstitute.github.io/picard/explain-flags.html) from the Broad Institute.
+
+<br>
+The CIGAR string is a representation of how the read aligned to the reference, including matches, mismatches, deletions, insertions, and splicing. More info on the CIGAR string is available [here](https://timd.one/blog/genomics/cigar.php)
+
+
+## (Optional) - Convert BAM to BigWig {.smaller}
+
+The **BAM** file produced from `STAR` contains alignment information that can be viewed in IGV. However, this file can be big and sluggish. One option is to convert the **BAM** file to a smaller **BigWig** format that will allow fast visualization of the results. 
+
+::: {.callout-note}
+The **BigWig** format will aggregate and bin your data across the genome. Therefore, you will lose individual read information. For observing SNPs, you'll want to use the **BAM** files instead.
+:::
+
+<br>
+
+::: {.panel-tabset}
+
+### Job submission
+
+```sh
+while IFS=, read -r srr_id eco geno trt tiss biorep samplename fq1 fq2
+do
+  sbatch code/bamTobw.sh $samplename
+done < <(tail -n +2 raw/metadata_sub1M.csv)
+```
+:::
+
+# Day Two
+
+## Workflow Outline {.smaller}
+
+-   Create metadata
+-   QC using `Fastqc` and `trim_galore`
+-   Genome indexing for `STAR` aligner
+-   Sequence alignment with `STAR`
+-   Gene quantification using `featureCounts`
+-   Differential expression analysis with `DESeq2`
+-   Data visualization in IGV
+
+## Step IV - featureCounts {.smaller}
+
+After aligning the reads to the genome, we must quantify the total reads associated with each genome feature (e.g., gene).
+
+<br>
+
+::: {.panel-tabset}
+
+### Job Submission
+
+```sh
+sbatch code/featurecounts.sh
+```
+
+### Output
+
+```sh
+#Program:featureCounts v2.0.6; Command:"featureCounts" "-T" "2" "-s" "0" "-a" "genome/Araport11_GFF3_genes_transposons.201606.gtf" "-p" "-t" "exon" "-g" "gene_id" "--countReadPairs" "--primary" "-o" "analysis/featurecounts/featurecounts.txt" "analysis/star/mir163_1_Aligned.sortedByCoord.out.bam" "analysis/star/mir163_2_Aligned.sortedByCoord.out.bam" "analysis/star/mir163_3_Aligned.sortedByCoord.out.bam" "analysis/star/wt_1_Aligned.sortedByCoord.out.bam" "analysis/star/wt_2_Aligned.sortedByCoord.out.bam" "analysis/star/wt_3_Aligned.sortedByCoord.out.bam" 
+Geneid  Chr     Start   End     Strand  Length  analysis/star/mir163_1_Aligned.sortedByCoord.out.bam        analysis/star/mir163_2_Aligned.sortedByCoord.out.bam        analysis/star/mir163_3_Aligned.sortedByCoord.out.bam        analysis/star/wt_1_Aligned.sortedByCoord.out.bam    analysis/star/wt_2_Aligned.sortedByCoord.out.bam        analysis/star/wt_3_Aligned.sortedByCoord.out.bam
+AT1G01010       Chr1;Chr1;Chr1;Chr1;Chr1;Chr1   3631;3996;4486;4706;5174;5439       3913;4276;4605;5095;5326;5899   +;+;+;+;+;+     1688185     186     248     310     140     258
+AT1G01020       Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1     6788;6788;6788;6788;6788;6788;7157;7157;7157;7157;7157;7157;7384;7384;7384;7384;7564;7564;7564;7564;7564;7564;7762;7762;7762;7762;7762;7942;7942;7942;7942;7942;8236;8236;8236;8236;8236;8236;8417;8417;8417;8417;8571;8571;8571;8594;8594;8594 7069;7069;7069;7069;7069;7069;7232;7232;7232;7232;7450;7450;7450;7450;7450;7450;7649;7649;7649;7649;7649;7649;7835;7835;7835;7835;7835;7987;7987;7987;7987;7987;8464;8325;8464;8325;8325;8325;8464;8464;8464;8464;9130;9130;8737;9130;9130;8737     -;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;- 1571    294     265     413     458     293334
+AT1G03987       Chr1    11101   11372   +       272     23      15 17       29      16      20
+AT1G01030       Chr1;Chr1;Chr1;Chr1;Chr1        11649;11649;12424;13335;13335       12354;13173;13173;13714;13714   -;-;-;-;-       1905188     216     234     262     192     205
+AT1G01040       Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1     23121;23416;24542;24542;24752;24752;25041;25041;25524;25524;25825;25825;26081;26081;26292;26292;26543;26543;26862;26862;27099;27099;27372;27372;27618;27618;27803;27803;28708;28708;28890;28890;29160;29160;30147;30147;30410;30410;30902;30902     24451;24451;24655;24655;24962;24962;25435;25435;25743;25743;25997;25997;26203;26203;26452;26452;26776;26776;27012;27012;27281;27281;27536;27533;27713;27713;28431;28431;28805;28805;29080;29080;30065;30065;30311;30311;30816;30816;31120;31227 +;+;+;+;+;+;+;+;+;+;+;+;+;+;+;+;+;+;+;+;+;+;+;+;+;+;+;+;+;+;+;+;+;+;+;+;+;+;+;+     6279    1066    1034    14131462    864     1138
+AT1G03993       Chr1    23312   24099   -       788     0       0  00       0       0
+AT1G01050       Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1   31170;31382;31521;31521;31693;31693;31933;31933;32088;32088;32282;32282;32431;32431;32547;32547;32839;33029     31424;31424;31602;31602;31813;31813;31998;31998;32195;32195;32347;32347;32459;32459;32670;32670;33009;33171 -;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;- 1165    999     1218    1258    1130    11611269
+AT1G03997       Chr1    32727   33009   +       283     0       0  00       0       0
+```
+
+:::
+
+## Step V - DESeq2 {.smaller}
+
+`DESeq2` is an R package that allows differential expression analysis.
+
+To run `DESeq2`, you will need two key inputs:
+
+- Gene count matrix (i.e., read counts for each gene) (featureCounts output)
+- Sample information file (metadata.csv)
+
+You will also need to define the type of contrasts/design for the analysis.
+
+For example, suppose we have the following metadata for a dataset:
+
+| sample 	| replicate 	| genotype 	| treatment 	| grp 	|
+|---	|---	|---	|---	|---	|
+| wt_1 	| 1 	| wild-type 	| ctrl 	| wt_ctrl 	|
+| wt_2 	| 2 	| wild-type 	| ctrl 	| wt_ctrl 	|
+| wt_3 	| 1 	| wild-type 	| inhibitor 	| wt_inhib 	|
+| wt_4 	| 2 	| wild-type 	| inhibitor 	| wt_inhib 	|
+| mut_1 	| 1 	| mutant 	| ctrl 	| mut_ctrl 	|
+| mut_2 	| 2 	| mutant 	| ctrl 	| mut_ctrl 	|
+| mut_3 	| 1 	| mutant 	| inhibitor 	| mut_inhib 	|
+| mut_4 	| 2 	| mutant 	| inhibitor 	| mut_inhib 	|
+
+We can run the following contrasts:
+
+**Contrasts**
+
+- contrast = ~ genotype
+- contrast = ~ treatment
+- contrast = ~ genotype + treatment + genotype:treatment
+- contrast = ~ grp
+
+**Comparisons**
+
+- Compares wild-type vs mutant (irrrespective of treatment)
+- Compares ctrl vs inhibitor (irrespective of genotype)
+- Compares genotype + treatment and their interactions
+- Compares wt_ctrl vs wt_inhib, wt_ctrl vs mut_ctrl, wt_ctrl vs mut_inhib
+
+::: {.panel-tabset}
+
+### Job submission
+
+```sh
+sbatch code/DESeq2.sh
+```
+:::
+
+## Step V - DESeq2 (pre-processing output) {.smaller}
+
+The custom `DESeq2` script generates several plots, tables, and genelists organized into the following directories. 
+
+<br>
+
+```sh
+analysis/deseq2
+├── genelists
+└── plots
+```
+
+Lets examine some of the pre-processing information about the dataset.
+
+<br>
+
+::: {.panel-tabset}
+
+### Library size {.smaller}
+
+![](../../demo_files/analysis/deseq2/plots/lib-size.barplots.png)
+
+### Count distribution
+
+:::: {.columns}
+
+::: {.column width="50%"}
+
+![](../../demo_files/analysis/deseq2/plots/count-dist.boxplots.raw.png)
+
+:::
+
+::: {.column width="50%"}
+![](../../demo_files/analysis/deseq2/plots/count-dist.boxplots.rlog.png)
+:::
+
+::::
+
+### Correlation heatmap
+
+![](../../demo_files/analysis/deseq2/plots/cor-heatmap.png){width="50%"}
+
+### PCA
+
+![](../../demo_files/analysis/deseq2/plots/PCA.png){width="50%"}
+
+:::
+
+## Step V - DESeq2 (DEG output) {.smaller}
+
+DEGs are defined using two filters:
+
+- log2foldchange > 0, FDR (adjusted-pvalue) < 0.1
+- log2foldchange > 1, FDR < 0.05
+
+<br>
+
+```sh
+$ ls analysis/deseq2/genelists
+DESeq2.DEG_summary.txt
+DESeq2_normalizedcounts.txt
+genotype_miR163_mut_vs_wt_DEGs.LFC0_p1.txt
+genotype_miR163_mut_vs_wt_DEGs.LFC1_p05.txt
+```
+<br>
+
+::: {.panel-tabset}
+
+### Summary table
+
+| Comparison 	| Total DEGs (p < 0.1) 	| Up DEGs (p < 0.1, LFC > 0) 	| Down DEGs (p < 0.1, LFC < 0) 	| Total DEGs (p < 0.05) 	| Up DEGs (p < 0.05, LFC > 1) 	| Down DEGs (p < 0.05, LFC < -1) 	|
+|---	|---	|---	|---	|---	|---	|---	|
+| genotype_miR163_mut_vs_wt 	| 11 	| 6 	| 5 	| 5 	| 3 	| 2 	|
+
+### Volcano plot (p < 0.1, l2fc > 0)
+
+![](../../demo_files/analysis/deseq2/plots/genotype_miR163_mut_vs_wt-volcano-LFC0-FDR1.png){width="70%"}
+
+### Volcano plot (p < 0.05, l2fc > 1)
+
+![](../../demo_files/analysis/deseq2/plots/genotype_miR163_mut_vs_wt-volcano-LFC1-FDR05.png){width="70%"}
+
+:::
+
+## Step VI - MultiQC {.smaller}
+
+`MultiQC` is used to generate a summary of the raw and processed data. The program aggregates all the log files from different programs (e.g., trim_galore, STAR) and provide a summary HTML file.
+
+::: {.panel-tabset}
+
+### Job submission
+
+```sh
+sbatch code/multiqc.sh
+```
+
+:::
+
+## Step VII - Visualization with IGV {.smaller}
+
+To inspect and examine your RNA-seq results, you can load the **BigWig** or **BAM** files into IGV.
+
+Download the `.bam`, `.bam.bai`, and `.bw` files. The `.bam` files are quite large (> 1Gb) whereas the `.bw` files are smaller (Mb). These files can be loaded into IGV for visualization and inspection.
+
+**Show IGV demonstration**
+
+
+## Workflow Cheatsheet {.smaller}
+
+There is a cheatsheet containing the entire workflow with codes for job submission.
+
+You can follow this cheatsheet to run the workflow.
+
+[Cheatsheet](http://htmlpreview.github.io/?https://github.com/bioinformatics-workshop/RNA-Seq-Workshop/blob/main/code/workflow.html)
+
+## Feedback {.smaller}
+
+<br>
+Please take a few minutes to provide feedback for this workshop by filling out the workshop survey. 
+
+<br>
+All repsonses are anonymous and will help to improve future workshops and training.
+
+<br>
+[Survey link](https://bit.ly/4062Wij)
