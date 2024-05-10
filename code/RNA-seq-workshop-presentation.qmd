@@ -2,7 +2,7 @@
 title: "Intro to RNA-seq Analysis"
 subtitle: "Hosted by the IIGB Bioinformatics Core"
 author: "Brandon Le"
-date-modified: 10-23-2023
+date-modified: 05-09-2024
 institute: "Genomics Building 1207G"
 code-line-numbers: true
 code-overflow: scroll
@@ -54,6 +54,7 @@ standalone: true
     -   [Intro to Unix](https://github.com/bioinformatics-workshop/Intro-to-Unix)
     -   [Intro to R/R-Studio](https://github.com/bioinformatics-workshop/Intro-to-R-RStudio) 
     -   [Intro to Shell Scripting](https://github.com/bioinformatics-workshop/Intro-to-Shell-Scripting)
+    -   [RNA-seq-workshop](https://github.com/bioinformatics-workshop/RNA-Seq-Workshop)
 
 ### Office Hour
 
@@ -63,22 +64,13 @@ standalone: true
 
 :::
 
-# Workshop Outline
-
-<br>
-Workshop dates:  
-
-Workshop I: October 18-19, 2023  
-
-Workshop II: October 25-26, 2023  
-
-<br>
+# Workshop Outline {.smaller}
 
 :::: {.columns}
 
 ::: {.column width="50%"}
 
-**Day One**
+**First**
 
 -   Introduction to RNA-seq
 -   Data analysis setup
