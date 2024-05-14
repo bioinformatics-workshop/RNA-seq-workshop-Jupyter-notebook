@@ -11,13 +11,13 @@
 
 
 # Arabidopsis reference genome (TAIR10/Araport11)
-# Resources available @ https://www.arabidopsis.org/download/index-auto.jsp?dir=%2Fdownload_files%2FGenes%2FAraport11_genome_release
+# Resources available @ https://www.arabidopsis.org
 
 # Set Parameters
-CHROM_URL=https://www.arabidopsis.org/download_files/Sequences/Assemblies/TAIR9_chr_all.fas
-GFF_URL=https://www.arabidopsis.org/download_files/Genes/Araport11_genome_release/Araport11_GFF3_genes_transposons.current.gff.gz
-GTF_URL=https://www.arabidopsis.org/download_files/Genes/Araport11_genome_release/Araport11_GTF_genes_transposons.current.gtf.gz
-README_URL=https://www.arabidopsis.org/download_files/Genes/Araport11_genome_release/README.202307.md
+CHROM_URL=https://www.arabidopsis.org/download/file?path=Sequences/Assemblies/TAIR9_chr_all.fas
+GFF_URL=https://www.arabidopsis.org/download/file?path=Genes/Araport11_genome_release/Araport11_GFF3_genes_transposons.current.gff.gz
+GTF_URL=https://www.arabidopsis.org/download/file?path=Genes/Araport11_genome_release/Araport11_GTF_genes_transposons.current.gtf.gz
+README_URL=https://www.arabidopsis.org/download/file?path=Genes/Araport11_genome_release/README.202404.md
 OUT_DIR=genome  
 
 

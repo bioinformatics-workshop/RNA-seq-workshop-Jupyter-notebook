@@ -1,0 +1,41 @@
+### RNA-seq configuration file ##########
+# This configuration file contains program settings and directories
+# to process an RNA-seq workflow.
+#########################################
+
+# Make changes to the following parameters pertaining to your dataset 
+
+# Library info
+STRANDED=0 # 0 (unstranded), 1 (stranded), 2 (reverse stranded)
+PAIRED=T # T (paired-end) or F (single-end)
+
+# Genome and Index files
+INDEX=index/TAIR10_STAR
+GTF=genome/Araport11_GFF3_genes_transposons.201606.gtf
+GENOME_FASTA=genome/TAIR10_Chr.all.fasta
+
+
+### RNA-seq workflow parameters ##########
+## Only edit if needed
+
+### Input and Output directories #################
+SAMPLES=metadata/metadata_sub1M.csv
+COMPARISONS=metadata/comparisons.csv
+
+RAW_DIR=raw
+FASTQC_DIR=analysis/fastqc
+TRIMGALORE_DIR=analysis/trimgalore
+STAR_DIR=analysis/star
+FEATURECOUNTS_DIR=analysis/featurecounts
+DESEQ2_DIR=analysis/deseq2
+DESEQ2_FCT=genotype
+QC_DIR=analysis/multiqc
+
+# wrapper functions
+if [ -f code/wrapper_functions.txt ]; then
+  source code/wrapper_functions.txt
+else
+    echo "You're missing the wrapper_functions.txt file"
+    exit
+fi
+

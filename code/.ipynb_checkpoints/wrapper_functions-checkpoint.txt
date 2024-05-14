@@ -1,0 +1,118 @@
+### Wrapper Functions #################
+# Wrappers to run specific programs
+# You can comment out or add parameters as needed
+
+
+# fastqc wrapper
+run_fastqc(){
+
+    # setting params
+    FASTQC_PARAMS=(
+        -f fastq
+        -t ${NUM_CORES}
+        --noextract
+        -o ${FASTQC_DIR}
+    )
+
+    if [ ${PAIRED} == "T" ]
+    then
+        fastqc "${FASTQC_PARAMS[@]}" \
+            $RAW_DIR/${FASTQ1} $RAW_DIR/${FASTQ2}
+    else
+        fastqc "${FASTQC_PARAMS[@]}" \
+            $RAW_DIR/${FASTQ1}
+    fi
+}
+
+# trim_galore wrapper
+run_trimgalore(){
+
+    # setting params
+    TRIM_PARAMS=(
+    --fastqc
+    --gzip
+    --trim-n
+    -j ${NUM_CORES}
+    -o ${TRIMGALORE_DIR}
+    --basename ${SAMPLENAME}
+    )
+
+    if [ ${PAIRED} == "T" ]
+    then
+        trim_galore "${TRIM_PARAMS[@]}" \
+            --paired \
+            $RAW_DIR/${FASTQ1} $RAW_DIR/${FASTQ2}
+    else
+        trim_galore "${TRIM_PARAMS[@]}" \
+            $RAW_DIR/${FASTQ1}
+    fi
+}
+
+# star wrapper
+run_star(){
+
+    # setting params
+    STAR_PARAMS=(
+        --runThreadN ${NUM_CORES}
+        --runMode alignReads
+        --genomeDir ${INDEX}
+        --readFilesCommand zcat
+        --outSAMtype BAM SortedByCoordinate
+        --outFileNamePrefix ${STAR_DIR}/${SAMPLENAME}_
+        --outFilterMismatchNmax 0
+        --outFilterMultimapNmax 1
+        --quantMode GeneCounts
+        --outWigType wiggle
+    )
+
+    if [ ${PAIRED} == "T" ]
+    then
+        STAR "${STAR_PARAMS[@]}" --readFilesIn \
+            ${TRIMGALORE_DIR}/${SAMPLENAME}_val_1.fq.gz \
+            ${TRIMGALORE_DIR}/${SAMPLENAME}_val_2.fq.gz
+    else
+        STAR "${STAR_PARAMS[@]}" --readFilesIn \
+            ${TRIMGALORE_DIR}/${SAMPLENAME}_trimmed.fq.gz
+    fi
+}
+
+# featurecounts wrapper
+run_featurecounts(){
+
+    # setting params
+    FEATURECOUNTS_PARAMS=(
+        -T ${NUM_CORES}
+        -s ${STRANDED}
+        -a ${GTF}
+        -t exon
+        -g Parent
+        --primary
+        -o ${FEATURECOUNTS_DIR}/${SAMPLENAME}.fcnts.txt
+    )
+
+    if [ ${PAIRED} == "T" ]
+    then
+        featureCounts "${FEATURECOUNTS_PARAMS[@]}" -p --countReadPairs \
+            ${STAR_DIR}/${SAMPLENAME}_Aligned.sortedByCoord.out.bam
+    else
+        featureCounts "${FEATURECOUNTS_PARAMS[@]}" \
+            ${STAR_DIR}/${SAMPLENAME}_Aligned.sortedByCoord.out.bam
+    fi
+}
+
+# samtools indexing wrapper
+sam_index(){
+    samtools index -M ${STAR_DIR}/${SAMPLENAME}_Aligned.sortedByCoord.out.bam
+}
+
+# conversion to bw for IGV
+bam2bw(){
+    module load deeptools/3.5.1
+    bamCoverage -b ${STAR_DIR}/${SAMPLENAME}_Aligned.sortedByCoord.out.bam \
+                -o ${STAR_DIR}/${SAMPLENAME}.bw \
+                -p ${NUM_CORES} \
+                --normalizeUsing CPM \
+                --exactScaling \
+                --skipNAs
+}
+
