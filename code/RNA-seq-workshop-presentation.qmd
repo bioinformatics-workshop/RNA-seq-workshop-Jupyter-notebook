@@ -66,118 +66,55 @@ standalone: true
 
 # Workshop Outline {.smaller}
 
-:::: {.columns}
+  - Core intro
+  - Server Access
+  - Introduction to RNA-seq
+  - RNA-seq workflow (in depth)
+  - Hands-on with Jupyter Notebook
 
-::: {.column width="50%"}
 
-**First**
+# Accessing the Web-based Notebook {.smaller}
 
--   Introduction to RNA-seq
--   Data analysis setup
--   Data QC
--   Sequence alignment
-:::
-
-::: {.column width="50%"}
-
-**Day Two**
-
--   Feature quantitation
--   Data pre-processing
--   Identify DEGs
--   Data visualization
-:::
-
-::::
-
-# Day One
-
-## What is RNA-seq? {.smaller}
-
-RNA sequencing or **RNA-seq** is one of many methods used for gene expression studies by obtaining a snapshot of the RNA molecules within a biological system. 
-
-![](img/workflow-bd020139.f1.jpeg)
-
-Reference: [Van den Berge et. al (2019) Annu Rev Biomed Data Sci](https://www.annualreviews.org/doi/10.1146/annurev-biodatasci-072018-021255)
-
-## What is RNA-seq? {.smaller}
-
-**Next-generation sequencing (NGS) technologies**
-
--   Short-read based (e.g. Illumina)
-    -   35 - 300 bases
--   Long-read based (e.g., PacBio, Oxford Nanopore)
-    -   Several kilobases
-
-**Sequencing resolution**
-
--   Bulk tissue (bulk RNA-seq)
--   Laser-capture microdissection (LCM + RNA-seq)
--   Single-cell (scRNA-seq)
--   Spatial transcriptomics (spatial + scRNA-seq)
-
-## Logging in to the server {.smaller}
+## Logging in to the server via OnDemand {.smaller}
 <br>
 
 You should receive an email with login information if you've never had an account on the HPCC. For those with an account already, you can use the same credentials to log into the server.
 
-Open up your terminal program (on your Mac or PC) and at the `$` prompt, enter the following command (change `<USERNAME>` to your account name)
+Open up your browser and type the following URL: [https://ondemand.hpcc.ucr.edu](https://ondemand.hpcc.ucr.edu)
+
+![](img/Ondemand_login.png)
 
 ::: {.callout-note}
-On the MacOS, there's a built-in terminal program `Terminal` (you can see it in your Applications folder within the Utilities sub-folder). For WinOS, you can download and install the `MobaXterm` application [(link)](https://mobaxterm.mobatek.net).
+Use the provided login credentials to log in to OnDemand. Then you'll be ask for authentication password and two-factor validation with DUO.
 :::
-<br>
-```sh
-ssh <USERNAME>@cluster.hpcc.ucr.edu
-
-# example
-ssh bioinfo-workshop@cluster.hpcc.ucr.edu
-```
-
-If connecting for the first time, you'll see a prompt (type yes and press ENTER):
-
-```sh
-The authenticity of host 'sample.ssh.com' cannot be established.
-DSA key fingerprint is 04:48:30:31:b0:f3:5a:9b:01:9d:b3:a7:38:e2:b1:0c.
-Are you sure you want to continue connecting (yes/no)?
-```
-
-Then you'll be ask for authentication password and two-factor validation with DUO.
-
-
-
 
 <br>
-After logging in, create a directory for the workshop.
+After logging in, you'll see the HPCC OnDemand Welcome Page  
 
-```sh
-mkdir bioinformatics-workshops
-```
-<br>
-Now change to the newly-created directory
+![](img/OnDemand_home.png)
 
-```sh
-cd bioinformatics-workshops
-```
 
-## Downloading/Uploading files from the server {.smaller}
+## Requesting a Juypter Notebook Interactive Session {.smaller}
 
-There will be times where you would want to see plots or access files generated on the cluster. For easier access, you can use an SFTP program with a GUI that connects to the server and provides direct access to those files.  
+We will use the interactive Jupyter notebook for the workshop tutorials. To request the interactive app, click on `Interactive Apps` and select `Jupyter Notebook`.  
 
-<br>
-There are several free GUI applications including [Filezilla](https://filezilla-project.org), [Cyberduck](https://cyberduck.io), [WinSCP](https://winscp.net/eng/download.php).
+![](img/Jupyter-interactive-app.png)
 
-These applications are available for MacOS, WinOS, and Linux platforms.
+You will see an app launch form. Fill in the following information:
 
-Once you have the application installed, start up the program and follow the instructions to connect to a site.
+![](img/Jupyter-app-form.png)
 
-<br>
-[Click here](https://hpcc.ucr.edu/manuals/hpc_cluster/sharing/#authentication-with-passwordduo) for instructions to connect and authenticate to the cluster using `Filezilla` with password + DUO authentication.
+Then click `Launch` and wait for resources to be gathered for your app. 
+
+![](img/Jupyter-app-queue.png)
+
+Once the app is ready, click `Connect to Jupyter` to launch the Jupyter notebook. 
+
+![](img/Jupyter-app-launch.png)
 
 ## Setting up the analysis directory {.smaller}
 
-We will clone the GitHub repository for this workshop. The repo is stored at: [GitHub Repo](https://github.com/bioinformatics-workshop/RNA-Seq-Workshop/tree/main)
-
+We will clone the GitHub repository for this workshop. The repo is stored at: [GitHub Repo](https://github.com/bioinformatics-workshop/RNA-seq-workshop-Jupyter-notebook)
 
 Cloning the repository will download all the files and directories from GitHub to your server/computer.
 
@@ -186,14 +123,14 @@ Cloning the repository will download all the files and directories from GitHub t
 Cloning the repository:
 
 ```sh
-git clone https://github.com/bioinformatics-workshop/RNA-Seq-Workshop.git
+git clone https://github.com/bioinformatics-workshop/RNA-seq-workshop-Jupyter-notebook.git
 ```
 <br>
 Once the cloning is complete, we can go into the newly-downloaded workshop repository to run our analyses.
 
 ```sh
 # change to the workshop directory
-cd RNA-Seq-Workshop
+cd RNA-Seq-Workshop-Jupyter-notebook
 
 # lists directory content
 ls
@@ -203,12 +140,16 @@ ls
 The home directory structure for the workshop should look like this:
 
 ```sh
+├── README.md
+├── RNA-seq-workflow.ipynb
 ├── analysis
 ├── code
 ├── genome
 ├── index
 ├── log
+├── metadata
 └── raw
+
 ```
 
 ::: {.callout-tip}
@@ -246,103 +187,71 @@ git reset --hard HEAD && git clean -f -d && git pull
 - `git pull`: This command fetches the changes from the remote repository and merges them into the local branch.
 :::
 
+## Setting up Bash for Jupyter notebook {.smaller}
 
-## Create conda environment {.smaller}
+We will install Bash for Jupyter notebook to enable running shell scripts within the notebook.
 
-We will create a conda environment containing bioinformatics software packages not readily available on the cluster for data processing and analysis. This conda environment includes special R packages (e.g., EnhancedVolcano) and software (e.g., multiqc).
+First, open a terminal session within the Jupyter Lab.  
 
+![](img/Launcher.png)
 
-<br>
+![](img/Jupyter-terminal.png)
 
-To create the conda environment:
+In the terminal, we'll first create a conda environment and then install the `bash-kernel`.
 
-```sh
-sbatch code/create-conda-env.sh
-```
-**Note**: *This step can take anywhere from 25-45 minutes. However, it's running in the background so we can come back to it later.*
-
-<br>
-To make sure the conda environment was created successfully, we can activate the conda environment:
-
-```sh
-conda activate DEG-analysis
+- create a conda environment name jupyter-nb
+```sh 
+conda create -n jupyter-nb python=3 ipython notebook
 ```
 
-<br>
-You should now see the environment `(DEG-analysis)` next to your `$` prompt.
-
+- activate the conda environment
 ```sh
-(DEG-analysis) $
+conda activate jupyter-nb
+```
+
+- install the bash kernel
+```sh 
+pip install bash_kernel
+```
+
+- Add bash to spec list
+```sh 
+python -m bash_kernel.install
 ```
 
 ::: {.callout-tip}
-To get out of the conda environment, type:
 
-```sh
-conda deactivate
-```
-The environment name in parentheses should now disappear.
+If the Bash kernel doesn't appear as an option for your notebook, you can shutdown all kernels and try again
+
 :::
 
+# RNA-seq Background
 
-## Submitting jobs on the cluster {.smaller}
+## What is RNA-seq? {.smaller}
 
-For this workshop, we will submit jobs to the cluster (to run in the background).
+RNA sequencing or **RNA-seq** is one of many methods used for gene expression studies by obtaining a snapshot of the RNA molecules within a biological system. 
 
-Example job submission:
+![](img/workflow-bd020139.f1.jpeg)
 
-```sh
-sbatch code/multiqc.sh
-```
+Reference: [Van den Berge et. al (2019) Annu Rev Biomed Data Sci](https://www.annualreviews.org/doi/10.1146/annurev-biodatasci-072018-021255)
 
-The submitted job will have a six-digit JOBID. To check on the status of your submitted job(s),
+## What is RNA-seq? {.smaller}
 
-```sh
-# Show all jobs from USER
-squeue -u <USERNAME>
+**Next-generation sequencing (NGS) technologies**
 
-# Show specific job with JOBID
-scontrol show job <JOBID>
-```
+-   Short-read based (e.g. Illumina)
+    -   35 - 300 bases
+-   Long-read based (e.g., PacBio, Oxford Nanopore)
+    -   Several kilobases
 
-To cancel a submitted job, use the JOBID.
+**Sequencing resolution**
 
-```sh
-# To delete a single job
-scancel -i <JOBID>
-scancel <JOBID>
+-   Bulk tissue (bulk RNA-seq)
+-   Laser-capture microdissection (LCM + RNA-seq)
+-   Single-cell (scRNA-seq)
+-   Spatial transcriptomics (spatial + scRNA-seq)
 
-# To delete all jobs for a user
-scancel -u <USERNAME>
-```
-
-:::{.callout-tip}
-All submitted jobs will generate a log file (stored in the `log` folder) containing the JOBNAME_JOBID.log
-
-- JOBNAME (e.g., fastqc, trim_galore)
-
-You can take a look at the log file to see standard output/errors from running the script.
-:::
-
-
-
-## Analysis Toolkit {.smaller}
-
-
-
-| Program	| Type	| Software	| Reference	| Misc	|
-|---	|---	|---	|---	|----	|
-| Fastqc	| QC	| [Software](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/)	| [Ref](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/)	| 	|
-| Trim_galore	| QC	| [Software](https://www.bioinformatics.babraham.ac.uk/projects/trim_galore/)	| [Ref](https://zenodo.org/records/7598955)	| 	|
-| Multiqc	| QC 	| [Software](https://multiqc.info)	| [Ref](https://academic.oup.com/bioinformatics/article/32/19/3047/2196507)	| [Manual](https://multiqc.info/docs/)	|
-| STAR	| Alignment| [Software](https://github.com/alexdobin/STAR/releases)  	| [Ref](https://academic.oup.com/bioinformatics/article/29/1/15/272537)	| [Manual](https://github.com/alexdobin/STAR/blob/master/doc/STARmanual.pdf)	|
-| FeatureCounts	| Quantification	| [Software](https://sourceforge.net/projects/subread/files/subread-2.0.6/)	| [Ref](https://academic.oup.com/bioinformatics/article/30/7/923/232889)	|	|
-| DESeq2	| Differential Expression	| [Software](https://www.bioconductor.org/packages/release/bioc/html/DESeq2.html)	| [Ref](https://genomebiology.biomedcentral.com/articles/10.1186/s13059-014-0550-8)	| [Guide](https://bioconductor.org/packages/devel/bioc/vignettes/DESeq2/inst/doc/DESeq2.html) 	|
-| IGV	| Visualization	| [Software](https://igv.org/doc/desktop/)	| [Ref](https://academic.oup.com/bib/article/14/2/178/208453) 	| [Web App](https://igv.org/app/)       	|
-| R	| Other	| [Software](https://cran.r-project.org)	| [Ref](https://www.R-project)	|	|
-| Tidyverse	| Other 	| [Software](https://www.tidyverse.org)	| [Ref](https://joss.theoj.org/papers/10.21105/joss.01686)	|   	|
-| EnhancedVolcano	| Other 	| [Software](https://bioconductor.org/packages/release/bioc/html/EnhancedVolcano.html) 	| [Ref](https://github.com/kevinblighe/EnhancedVolcano)	|	|
-
+# RNA-seq analysis workflow
 
 ## Sample Dataset Demo {.smaller}
 
@@ -370,6 +279,21 @@ You can take a look at the log file to see standard output/errors from running t
 -   Gene quantification using `featureCounts`
 -   Differential expression analysis with `DESeq2`
 -   Data visualization in IGV
+
+## Analysis Toolkit {.smaller}
+
+| Program	| Type	| Software	| Reference	| Misc	|
+|---	|---	|---	|---	|----	|
+| Fastqc	| QC	| [Software](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/)	| [Ref](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/)	| 	|
+| Trim_galore	| QC	| [Software](https://www.bioinformatics.babraham.ac.uk/projects/trim_galore/)	| [Ref](https://zenodo.org/records/7598955)	| 	|
+| Multiqc	| QC 	| [Software](https://multiqc.info)	| [Ref](https://academic.oup.com/bioinformatics/article/32/19/3047/2196507)	| [Manual](https://multiqc.info/docs/)	|
+| STAR	| Alignment| [Software](https://github.com/alexdobin/STAR/releases)  	| [Ref](https://academic.oup.com/bioinformatics/article/29/1/15/272537)	| [Manual](https://github.com/alexdobin/STAR/blob/master/doc/STARmanual.pdf)	|
+| FeatureCounts	| Quantification	| [Software](https://sourceforge.net/projects/subread/files/subread-2.0.6/)	| [Ref](https://academic.oup.com/bioinformatics/article/30/7/923/232889)	|	|
+| DESeq2	| Differential Expression	| [Software](https://www.bioconductor.org/packages/release/bioc/html/DESeq2.html)	| [Ref](https://genomebiology.biomedcentral.com/articles/10.1186/s13059-014-0550-8)	| [Guide](https://bioconductor.org/packages/devel/bioc/vignettes/DESeq2/inst/doc/DESeq2.html) 	|
+| IGV	| Visualization	| [Software](https://igv.org/doc/desktop/)	| [Ref](https://academic.oup.com/bib/article/14/2/178/208453) 	| [Web App](https://igv.org/app/)       	|
+| R	| Other	| [Software](https://cran.r-project.org)	| [Ref](https://www.R-project)	|	|
+| Tidyverse	| Other 	| [Software](https://www.tidyverse.org)	| [Ref](https://joss.theoj.org/papers/10.21105/joss.01686)	|   	|
+| EnhancedVolcano	| Other 	| [Software](https://bioconductor.org/packages/release/bioc/html/EnhancedVolcano.html) 	| [Ref](https://github.com/kevinblighe/EnhancedVolcano)	|	|
 
 ## Data Preparation - Create metadata {.smaller}
 
@@ -414,8 +338,8 @@ raw/SRRxxxx_2.fastq.gz
 An extensive metadata file describes the samples in detail. However, the minimum metadata file should contain the following:
 
 - samplename (sometime it's the same name as the fastq file), 
-- condition/treatment/genotype 
 - fq1/fq2
+- condition/treatment/genotype (factor to run comparison)
 
 Other metadata info can include:
 
@@ -423,6 +347,8 @@ Other metadata info can include:
 - technical replicate
 - sequencing batch
 - library kits
+- cell line
+- etc...
 
 :::
 
@@ -435,13 +361,13 @@ Other metadata info can include:
 This file contains the metadata for the full dataset
 
 ```sh
-srr_id,ecotype,genotype,treatment,tissue,biorep,samplename,fq1,fq2
-SRR24016000,Col-0,miR163_mut,7-day-old seedlings without treatment,seedlings,1,mir163_1,raw/SRR24016000_1.fastq.gz,raw/SRR24016000_2.fastq.gz
-SRR24016001,Col-0,miR163_mut,7-day-old seedlings without treatment,seedlings,2,mir163_2,raw/SRR24016001_1.fastq.gz,raw/SRR24016001_2.fastq.gz
-SRR24016002,Col-0,miR163_mut,7-day-old seedlings without treatment,seedlings,3,mir163_3,raw/SRR24016002_1.fastq.gz,raw/SRR24016002_2.fastq.gz
-SRR24016003,Col-0,wt,7-day-old seedlings without treatment,seedlings,1,wt_1,raw/SRR24016003_1.fastq.gz,raw/SRR24016003_2.fastq.gz
-SRR24016004,Col-0,wt,7-day-old seedlings without treatment,seedlings,2,wt_2,raw/SRR24016004_1.fastq.gz,raw/SRR24016004_2.fastq.gz
-SRR24016005,Col-0,wt,7-day-old seedlings without treatment,seedlings,3,wt_3,raw/SRR24016005_1.fastq.gz,raw/SRR24016005_2.fastq.gz
+samplename,fq1,fq2,srr_id,ecotype,genotype,treatment,tissue,biorep
+mir163_1,SRR24016000_1.fastq.gz,SRR24016000_2.fastq.gz,SRR24016000,Col-0,miR163_mut,7-day-old seedlings without treatment,seedlings,1
+mir163_2,SRR24016001_1.fastq.gz,SRR24016001_2.fastq.gz,SRR24016001,Col-0,miR163_mut,7-day-old seedlings without treatment,seedlings,2
+mir163_3,SRR24016002_1.fastq.gz,SRR24016002_2.fastq.gz,SRR24016002,Col-0,miR163_mut,7-day-old seedlings without treatment,seedlings,3
+wt_1,SRR24016003_1.fastq.gz,SRR24016003_2.fastq.gz,SRR24016003,Col-0,wt,7-day-old seedlings without treatment,seedlings,1
+wt_2,SRR24016004_1.fastq.gz,SRR24016004_2.fastq.gz,SRR24016004,Col-0,wt,7-day-old seedlings without treatment,seedlings,2
+wt_3,SRR24016005_1.fastq.gz,SRR24016005_2.fastq.gz,SRR24016005,Col-0,wt,7-day-old seedlings without treatment,seedlings,3
 ```
 
 ### metadata_sub1M.csv
@@ -449,13 +375,13 @@ SRR24016005,Col-0,wt,7-day-old seedlings without treatment,seedlings,3,wt_3,raw/
 This file contains the metadata referencing the 1M sub-sampled dataset
 
 ```sh
-srr_id,ecotype,genotype,treatment,tissue,biorep,samplename,fq1,fq2
-SRR24016000_sub1M,Col-0,miR163_mut,7-day-old seedlings without treatment,seedlings,1,mir163_1,raw/SRR24016000_sub1M_1.fastq.gz,raw/SRR24016000_sub1M_2.fastq.gz
-SRR24016001_sub1M,Col-0,miR163_mut,7-day-old seedlings without treatment,seedlings,2,mir163_2,raw/SRR24016001_sub1M_1.fastq.gz,raw/SRR24016001_sub1M_2.fastq.gz
-SRR24016002_sub1M,Col-0,miR163_mut,7-day-old seedlings without treatment,seedlings,3,mir163_3,raw/SRR24016002_sub1M_1.fastq.gz,raw/SRR24016002_sub1M_2.fastq.gz
-SRR24016003_sub1M,Col-0,wt,7-day-old seedlings without treatment,seedlings,1,wt_1,raw/SRR24016003_sub1M_1.fastq.gz,raw/SRR24016003_sub1M_2.fastq.gz
-SRR24016004_sub1M,Col-0,wt,7-day-old seedlings without treatment,seedlings,2,wt_2,raw/SRR24016004_sub1M_1.fastq.gz,raw/SRR24016004_sub1M_2.fastq.gz
-SRR24016005_sub1M,Col-0,wt,7-day-old seedlings without treatment,seedlings,3,wt_3,raw/SRR24016005_sub1M_1.fastq.gz,raw/SRR24016005_sub1M_2.fastq.gz
+samplename,fq1,fq2,srr_id,ecotype,genotype,treatment,tissue,biorep
+mir163_1,SRR24016000_sub1M_1.fastq.gz,SRR24016000_sub1M_2.fastq.gz,SRR24016000_sub1M,Col-0,miR163_mut,7-day-old seedlings without treatment,seedlings,1
+mir163_2,SRR24016001_sub1M_1.fastq.gz,SRR24016001_sub1M_2.fastq.gz,SRR24016001_sub1M,Col-0,miR163_mut,7-day-old seedlings without treatment,seedlings,2
+mir163_3,SRR24016002_sub1M_1.fastq.gz,SRR24016002_sub1M_2.fastq.gz,SRR24016002_sub1M,Col-0,miR163_mut,7-day-old seedlings without treatment,seedlings,3
+wt_1,SRR24016003_sub1M_1.fastq.gz,SRR24016003_sub1M_2.fastq.gz,SRR24016003_sub1M,Col-0,wt,7-day-old seedlings without treatment,seedlings,1
+wt_2,SRR24016004_sub1M_1.fastq.gz,SRR24016004_sub1M_2.fastq.gz,SRR24016004_sub1M,Col-0,wt,7-day-old seedlings without treatment,seedlings,2
+wt_3,SRR24016005_sub1M_1.fastq.gz,SRR24016005_sub1M_2.fastq.gz,SRR24016005_sub1M,Col-0,wt,7-day-old seedlings without treatment,seedlings,3
 ```
 :::
 
@@ -537,7 +463,7 @@ Index sequence
  
 ::::
 
-## Step I - QC {.smaller}
+## Sequence Quality Control (QC) {.smaller}
 <br>
 We will run QC on the raw data using `fastqc` and `trim_galore`. 
 
@@ -554,16 +480,6 @@ We will run QC on the raw data using `fastqc` and `trim_galore`.
 <br>
 
 ::: {.panel-tabset}
-
-### Job submission
-
-```sh
-while IFS=, read -r srr_id eco geno trt tiss biorep samplename fq1 fq2
-do
-  sbatch code/fastqc.sh ${srr_id}
-  sbatch code/trim_galore.sh $samplename $fq1 $fq2
-done < <(tail -n +2 raw/metadata_sub1M.csv)
-```
 
 ### Fastqc Output
 
@@ -657,7 +573,7 @@ wt_3_val_2.fq.gz
 
 :::
 
-## Step II - STAR Indexing {.smaller}
+## Building an index for the reference genome {.smaller}
 
 To run the STAR aligner, we first need to create an index of the genome.
 
@@ -676,12 +592,6 @@ For assembled genomes containing large number of scaffolds or large genomes, thi
 
 
 ::: {.panel-tabset}
-
-### Job submission
-
-```sh
-sbatch code/STAR-index.sh
-```
 
 ### Fasta File
 
@@ -742,23 +652,13 @@ Chr1    Araport11       three_prime_UTR 5631    5899    .       +       .       
 ```
 :::
 
-## Step III - STAR Alignment {.smaller}
+## Sequence alignment with STAR {.smaller}
 
 Now we can align the reads from each sample to the indexed reference genome.
 
-Depending on the sequencing depth, this step can take a 
+Depending on the sequencing depth, this step can take some time. 
 
 ::: {.panel-tabset}
-
-### Job submission
-
-```sh
-while IFS=, read -r srr_id eco geno trt tiss biorep samplename fq1 fq2
-do
-  sbatch code/STAR-align.sh $samplename
-done < <(tail -n +2 raw/metadata_sub1M.csv)
-```
-
 
 ### Output
 
@@ -905,31 +805,7 @@ The **BigWig** format will aggregate and bin your data across the genome. Theref
 
 <br>
 
-::: {.panel-tabset}
-
-### Job submission
-
-```sh
-while IFS=, read -r srr_id eco geno trt tiss biorep samplename fq1 fq2
-do
-  sbatch code/bamTobw.sh $samplename
-done < <(tail -n +2 raw/metadata_sub1M.csv)
-```
-:::
-
-# Day Two
-
-## Workflow Outline {.smaller}
-
--   Create metadata
--   QC using `Fastqc` and `trim_galore`
--   Genome indexing for `STAR` aligner
--   Sequence alignment with `STAR`
--   Gene quantification using `featureCounts`
--   Differential expression analysis with `DESeq2`
--   Data visualization in IGV
-
-## Step IV - featureCounts {.smaller}
+## Quantifying read counts using featureCounts {.smaller}
 
 After aligning the reads to the genome, we must quantify the total reads associated with each genome feature (e.g., gene).
 
@@ -937,30 +813,22 @@ After aligning the reads to the genome, we must quantify the total reads associa
 
 ::: {.panel-tabset}
 
-### Job Submission
-
-```sh
-sbatch code/featurecounts.sh
-```
-
 ### Output
 
 ```sh
-#Program:featureCounts v2.0.6; Command:"featureCounts" "-T" "2" "-s" "0" "-a" "genome/Araport11_GFF3_genes_transposons.201606.gtf" "-p" "-t" "exon" "-g" "gene_id" "--countReadPairs" "--primary" "-o" "analysis/featurecounts/featurecounts.txt" "analysis/star/mir163_1_Aligned.sortedByCoord.out.bam" "analysis/star/mir163_2_Aligned.sortedByCoord.out.bam" "analysis/star/mir163_3_Aligned.sortedByCoord.out.bam" "analysis/star/wt_1_Aligned.sortedByCoord.out.bam" "analysis/star/wt_2_Aligned.sortedByCoord.out.bam" "analysis/star/wt_3_Aligned.sortedByCoord.out.bam" 
-Geneid  Chr     Start   End     Strand  Length  analysis/star/mir163_1_Aligned.sortedByCoord.out.bam        analysis/star/mir163_2_Aligned.sortedByCoord.out.bam        analysis/star/mir163_3_Aligned.sortedByCoord.out.bam        analysis/star/wt_1_Aligned.sortedByCoord.out.bam    analysis/star/wt_2_Aligned.sortedByCoord.out.bam        analysis/star/wt_3_Aligned.sortedByCoord.out.bam
-AT1G01010       Chr1;Chr1;Chr1;Chr1;Chr1;Chr1   3631;3996;4486;4706;5174;5439       3913;4276;4605;5095;5326;5899   +;+;+;+;+;+     1688185     186     248     310     140     258
-AT1G01020       Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1     6788;6788;6788;6788;6788;6788;7157;7157;7157;7157;7157;7157;7384;7384;7384;7384;7564;7564;7564;7564;7564;7564;7762;7762;7762;7762;7762;7942;7942;7942;7942;7942;8236;8236;8236;8236;8236;8236;8417;8417;8417;8417;8571;8571;8571;8594;8594;8594 7069;7069;7069;7069;7069;7069;7232;7232;7232;7232;7450;7450;7450;7450;7450;7450;7649;7649;7649;7649;7649;7649;7835;7835;7835;7835;7835;7987;7987;7987;7987;7987;8464;8325;8464;8325;8325;8325;8464;8464;8464;8464;9130;9130;8737;9130;9130;8737     -;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;- 1571    294     265     413     458     293334
-AT1G03987       Chr1    11101   11372   +       272     23      15 17       29      16      20
-AT1G01030       Chr1;Chr1;Chr1;Chr1;Chr1        11649;11649;12424;13335;13335       12354;13173;13173;13714;13714   -;-;-;-;-       1905188     216     234     262     192     205
-AT1G01040       Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1     23121;23416;24542;24542;24752;24752;25041;25041;25524;25524;25825;25825;26081;26081;26292;26292;26543;26543;26862;26862;27099;27099;27372;27372;27618;27618;27803;27803;28708;28708;28890;28890;29160;29160;30147;30147;30410;30410;30902;30902     24451;24451;24655;24655;24962;24962;25435;25435;25743;25743;25997;25997;26203;26203;26452;26452;26776;26776;27012;27012;27281;27281;27536;27533;27713;27713;28431;28431;28805;28805;29080;29080;30065;30065;30311;30311;30816;30816;31120;31227 +;+;+;+;+;+;+;+;+;+;+;+;+;+;+;+;+;+;+;+;+;+;+;+;+;+;+;+;+;+;+;+;+;+;+;+;+;+;+;+     6279    1066    1034    14131462    864     1138
-AT1G03993       Chr1    23312   24099   -       788     0       0  00       0       0
-AT1G01050       Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1   31170;31382;31521;31521;31693;31693;31933;31933;32088;32088;32282;32282;32431;32431;32547;32547;32839;33029     31424;31424;31602;31602;31813;31813;31998;31998;32195;32195;32347;32347;32459;32459;32670;32670;33009;33171 -;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;- 1165    999     1218    1258    1130    11611269
-AT1G03997       Chr1    32727   33009   +       283     0       0  00       0       0
+# Program:featureCounts v2.0.3; Command:"featureCounts" "-T" "8" "-s" "0" "-a" "genome/Araport11_GFF3_genes_transposons.201606.gtf" "-t" "exon" "-g" "gene_id" "--primary" "-o" "analysis/featurecounts/mir163_1.fcnts.txt" "-p" "--countReadPairs" "analysis/star/mir163_1_Aligned.sortedByCoord.out.bam" 
+Geneid  Chr     Start   End     Strand  Length  analysis/star/mir163_1_Aligned.sortedByCoord.out.bam
+AT1G01010       Chr1;Chr1;Chr1;Chr1;Chr1;Chr1   3631;3996;4486;4706;5174;5439   3913;4276;4605;5095;5326;5899   +;+;+;+;+;+     1688    6
+AT1G01020       Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1 6788;6788;6788;6788;6788;6788;7157;7157;7157;7157;7157;7157;7384;7384;7384;7384;7564;7564;7564;7564;7564;7564;7762;7762;7762;7762;7762;7942;7942;7942;7942;7942;8236;8236;8236;8236;8236;8236;8417;8417;8417;8417;8571;8571;8571;8594;8594;8594 7069;7069;7069;7069;7069;7069;7232;7232;7232;7232;7450;7450;7450;7450;7450;7450;7649;7649;7649;7649;7649;7649;7835;7835;7835;7835;7835;7987;7987;7987;7987;7987;8464;8325;8464;8325;8325;8325;8464;8464;8464;8464;9130;9130;8737;9130;9130;8737 -;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;- 1571    18
+AT1G03987       Chr1    11101   11372   +       272     1
+AT1G01030       Chr1;Chr1;Chr1;Chr1;Chr1        11649;11649;12424;13335;13335   12354;13173;13173;13714;13714   -;-;-;-;-       1905    12
+AT1G01040       Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1;Chr1 23121;23416;24542;24542;24752;24752;25041;25041;25524;25524;25825;25825;26081;26081;26292;26292;26543;26543;26862;26862;27099;27099;27372;27372;27618;27618;27803;27803;28708;28708;28890;28890;29160;29160;30147;30147;30410;30410;30902;30902 24451;24451;24655;24655;24962;24962;25435;25435;25743;25743;25997;25997;26203;26203;26452;26452;26776;26776;27012;27012;27281;27281;27536;27533;27713;27713;28431;28431;28805;28805;29080;29080;30065;30065;30311;30311;30816;30816;31120;31227 +;+;+;+;+;+;+;+;+;+;+;+;+;+;+;+;+;+;+;+;+;+;+;+;+;+;+;+;+;+;+;+;+;+;+;+;+;+;+;+ 6279    67
+AT1G03993       Chr1    23312   24099   -       788     0
 ```
 
 :::
 
-## Step V - DESeq2 {.smaller}
+## Differential expression analysis with  DESeq2 {.smaller}
 
 `DESeq2` is an R package that allows differential expression analysis.
 
@@ -1000,78 +868,35 @@ We can run the following contrasts:
 - Compares genotype + treatment and their interactions
 - Compares wt_ctrl vs wt_inhib, wt_ctrl vs mut_ctrl, wt_ctrl vs mut_inhib
 
-::: {.panel-tabset}
 
-### Job submission
-
-```sh
-sbatch code/DESeq2.sh
-```
-:::
-
-## Step V - DESeq2 (pre-processing output) {.smaller}
+## DESeq2 (pre-processing output) {.smaller}
 
 The custom `DESeq2` script generates several plots, tables, and genelists organized into the following directories. 
 
 <br>
-
+Outputs are organized into the `genelists` or `plots` folders.
 ```sh
-analysis/deseq2
+analysis/genotype/deseq2
 ├── genelists
 └── plots
 ```
 
-Lets examine some of the pre-processing information about the dataset.
-
-<br>
-
-::: {.panel-tabset}
-
-### Library size {.smaller}
-
-![](../../demo_files/analysis/deseq2/plots/lib-size.barplots.png)
-
-### Count distribution
-
-:::: {.columns}
-
-::: {.column width="50%"}
-
-![](../../demo_files/analysis/deseq2/plots/count-dist.boxplots.raw.png)
-
-:::
-
-::: {.column width="50%"}
-![](../../demo_files/analysis/deseq2/plots/count-dist.boxplots.rlog.png)
-:::
-
-::::
-
-### Correlation heatmap
-
-![](../../demo_files/analysis/deseq2/plots/cor-heatmap.png){width="50%"}
-
-### PCA
-
-![](../../demo_files/analysis/deseq2/plots/PCA.png){width="50%"}
-
-:::
-
-## Step V - DESeq2 (DEG output) {.smaller}
-
-DEGs are defined using two filters:
-
-- log2foldchange > 0, FDR (adjusted-pvalue) < 0.1
-- log2foldchange > 1, FDR < 0.05
-
-<br>
-
+The `genelists` folder contains a summary of DEGs, all the deseq2 outputs (stored as an R object (RDS) and a CSV file, and DEGs with annotations.
 ```sh
-$ ls analysis/deseq2/genelists
-DESeq2.DEG_summary.txt
-DESeq2_normalizedcounts.txt
-genotype_miR163_mut_vs_wt_DEGs.LFC0_p1.txt
-genotype_miR163_mut_vs_wt_DEGs.LFC1_p05.txt
+$ ls -1 analysis/deseq2/genotype/genelists/
+deg_summary.csv
+deseq2_results.RDS
+miR163_mut-wt.deseq2_output.csv
+miR163_mut-wt.DownDEG.annotated.csv
+miR163_mut-wt.UpDEG.annotated.csv
+```
+
+The `plots` folder contains a bar plot summarizing the number of DEGs, a PCA plot, and an enhanced volcano plot highlighting the DEGs.
+```sh
+$ ls -1 analysis/deseq2/genotype/plots/*png
+analysis/deseq2/genotype/plots/DEG_summary.png
+analysis/deseq2/genotype/plots/Enhancedvolcano_miR163_mut-vs-wt.png
+analysis/deseq2/genotype/plots/PCA.png
 ```
 <br>
 
@@ -1079,35 +904,26 @@ genotype_miR163_mut_vs_wt_DEGs.LFC1_p05.txt
 
 ### Summary table
 
-| Comparison 	| Total DEGs (p < 0.1) 	| Up DEGs (p < 0.1, LFC > 0) 	| Down DEGs (p < 0.1, LFC < 0) 	| Total DEGs (p < 0.05) 	| Up DEGs (p < 0.05, LFC > 1) 	| Down DEGs (p < 0.05, LFC < -1) 	|
-|---	|---	|---	|---	|---	|---	|---	|
-| genotype_miR163_mut_vs_wt 	| 11 	| 6 	| 5 	| 5 	| 3 	| 2 	|
+| Comparisons | Counts_Up_or_Down | Counts_Up | Counts_Down  |
+|---	| :---:	| :---:	| :---:	|
+| miR163_mut-wt | 3 | 2 | 1 |
 
-### Volcano plot (p < 0.1, l2fc > 0)
+### PCA plot
 
-![](../../demo_files/analysis/deseq2/plots/genotype_miR163_mut_vs_wt-volcano-LFC0-FDR1.png){width="70%"}
+![](img/PCA.png){width="100%"}
 
 ### Volcano plot (p < 0.05, l2fc > 1)
 
-![](../../demo_files/analysis/deseq2/plots/genotype_miR163_mut_vs_wt-volcano-LFC1-FDR05.png){width="70%"}
+![](img/Enhancedvolcano_miR163_mut-vs-wt.png){width="100%"}
 
 :::
 
-## Step VI - MultiQC {.smaller}
+## Summary using MultiQC {.smaller}
 
 `MultiQC` is used to generate a summary of the raw and processed data. The program aggregates all the log files from different programs (e.g., trim_galore, STAR) and provide a summary HTML file.
 
-::: {.panel-tabset}
 
-### Job submission
-
-```sh
-sbatch code/multiqc.sh
-```
-
-:::
-
-## Step VII - Visualization with IGV {.smaller}
+## Data Visualization with IGV {.smaller}
 
 To inspect and examine your RNA-seq results, you can load the **BigWig** or **BAM** files into IGV.
 
@@ -1115,14 +931,13 @@ Download the `.bam`, `.bam.bai`, and `.bw` files. The `.bam` files are quite lar
 
 **Show IGV demonstration**
 
+[IGV website](https://igv.org)
 
-## Workflow Cheatsheet {.smaller}
 
-There is a cheatsheet containing the entire workflow with codes for job submission.
+## Hands-On Session {.smaller}
 
-You can follow this cheatsheet to run the workflow.
+We will have a hands-on practice with the analysis workflow using a Jupyter notebook.
 
-[Cheatsheet](http://htmlpreview.github.io/?https://github.com/bioinformatics-workshop/RNA-Seq-Workshop/blob/main/code/workflow.html)
 
 ## Feedback {.smaller}
 
@@ -1130,7 +945,101 @@ You can follow this cheatsheet to run the workflow.
 Please take a few minutes to provide feedback for this workshop by filling out the workshop survey. 
 
 <br>
-All repsonses are anonymous and will help to improve future workshops and training.
+All responses are anonymous and will help to improve future workshops and training.
 
 <br>
 [Survey link](https://bit.ly/4062Wij)
+
+
+# Additional Slides 
+
+## Downloading/Uploading files from the server {.smaller}
+
+There will be times where you would want to see plots or access files generated on the cluster. For easier access, you can use an SFTP program with a GUI that connects to the server and provides direct access to those files.  
+
+<br>
+There are several free GUI applications including [Filezilla](https://filezilla-project.org), [Cyberduck](https://cyberduck.io), [WinSCP](https://winscp.net/eng/download.php).
+
+These applications are available for MacOS, WinOS, and Linux platforms.
+
+Once you have the application installed, start up the program and follow the instructions to connect to a site.
+
+<br>
+[Click here](https://hpcc.ucr.edu/manuals/hpc_cluster/sharing/#authentication-with-passwordduo) for instructions to connect and authenticate to the cluster using `Filezilla` with password + DUO authentication.
+
+## Submitting jobs on the cluster {.smaller}
+
+For this workshop, we will submit jobs to the cluster (to run in the background).
+
+Example job submission:
+
+```sh
+sbatch code/multiqc.sh
+```
+
+The submitted job will have a six-digit JOBID. To check on the status of your submitted job(s),
+
+```sh
+# Show all jobs from USER
+squeue -u <USERNAME>
+
+# Show specific job with JOBID
+scontrol show job <JOBID>
+```
+
+To cancel a submitted job, use the JOBID.
+
+```sh
+# To delete a single job
+scancel -i <JOBID>
+scancel <JOBID>
+
+# To delete all jobs for a user
+scancel -u <USERNAME>
+```
+
+:::{.callout-tip}
+All submitted jobs will generate a log file (stored in the `log` folder) containing the JOBNAME_JOBID.log
+
+- JOBNAME (e.g., fastqc, trim_galore)
+
+You can take a look at the log file to see standard output/errors from running the script.
+:::
+
+## Create conda environment {.smaller}
+
+We will create a conda environment containing bioinformatics software packages not readily available on the cluster for data processing and analysis. This conda environment includes special R packages (e.g., EnhancedVolcano) and software (e.g., multiqc).
+
+
+<br>
+
+To create the conda environment:
+
+```sh
+sbatch code/create-conda-env.sh
+```
+**Note**: *This step can take anywhere from 25-45 minutes. However, it's running in the background so we can come back to it later.*
+
+<br>
+To make sure the conda environment was created successfully, we can activate the conda environment:
+
+```sh
+conda activate DEG-analysis
+```
+
+<br>
+You should now see the environment `(DEG-analysis)` next to your `$` prompt.
+
+```sh
+(DEG-analysis) $
+```
+
+::: {.callout-tip}
+To get out of the conda environment, type:
+
+```sh
+conda deactivate
+```
+The environment name in parentheses should now disappear.
+:::
+

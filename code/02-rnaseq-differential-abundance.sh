@@ -9,7 +9,7 @@
 #SBATCH --output=log/%x_%A_%a.log
 ##################################################################
 
-## RNA-seq Workflow - Alignment #############
+## RNA-seq Workflow - Differential Expression #############
 ##
 ## This workflow will carry out the following steps:
 ## 1 - RNA-seq differential abundance
