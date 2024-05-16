@@ -2,7 +2,7 @@
 title: "Intro to RNA-seq Analysis"
 subtitle: "Hosted by the IIGB Bioinformatics Core"
 author: "Brandon Le"
-date-modified: 05-09-2024
+date-modified: 05-16-2024
 institute: "Genomics Building 1207G"
 code-line-numbers: true
 code-overflow: scroll
@@ -185,44 +185,6 @@ git reset --hard HEAD && git clean -f -d && git pull
 - `git reset --hard HEAD`: This command resets the current branch to the HEAD commit of the remote repository, discarding any local changes.
 - `git clean -f -d`: This command removes any untracked files and directories from the working directory.
 - `git pull`: This command fetches the changes from the remote repository and merges them into the local branch.
-:::
-
-## Setting up Bash for Jupyter notebook {.smaller}
-
-We will install Bash for Jupyter notebook to enable running shell scripts within the notebook.
-
-First, open a terminal session within the Jupyter Lab.  
-
-![](img/Launcher.png)
-
-![](img/Jupyter-terminal.png)
-
-In the terminal, we'll first create a conda environment and then install the `bash-kernel`.
-
-- create a conda environment name jupyter-nb
-```sh 
-conda create -n jupyter-nb python=3 ipython notebook
-```
-
-- activate the conda environment
-```sh
-conda activate jupyter-nb
-```
-
-- install the bash kernel
-```sh 
-pip install bash_kernel
-```
-
-- Add bash to spec list
-```sh 
-python -m bash_kernel.install
-```
-
-::: {.callout-tip}
-
-If the Bash kernel doesn't appear as an option for your notebook, you can shutdown all kernels and try again
-
 :::
 
 # RNA-seq Background
@@ -1041,5 +1003,43 @@ To get out of the conda environment, type:
 conda deactivate
 ```
 The environment name in parentheses should now disappear.
+:::
+
+## Setting up Bash for Jupyter notebook {.smaller}
+
+We will install Bash for Jupyter notebook to enable running shell scripts within the notebook.
+
+First, open a terminal session within the Jupyter Lab.  
+
+![](img/Launcher.png)
+
+![](img/Jupyter-terminal.png)
+
+In the terminal, we'll first create a conda environment and then install the `bash-kernel`.
+
+- create a conda environment name jupyter-nb
+```sh 
+conda create -n jupyter-nb python=3 ipython notebook
+```
+
+- activate the conda environment
+```sh
+conda activate jupyter-nb
+```
+
+- install the bash kernel
+```sh 
+pip install bash_kernel
+```
+
+- Add bash to spec list
+```sh 
+python -m bash_kernel.install
+```
+
+::: {.callout-tip}
+
+If the Bash kernel doesn't appear as an option for your notebook, you can shutdown all kernels and try again
+
 :::
 
