@@ -29,5 +29,5 @@ esearch -db bioproject -query $BIOPROJ | \
 elink -target sra | \
 efetch -format native -mode xml | \
 xtract -pattern EXPERIMENT_PACKAGE \
-    -block SAMPLE -element VALUE -block RUN_SET -element PRIMARY_ID >> \
+    -block SAMPLE -element VALUE -block RUN_SET -element PRIMARY_ID > \
     $RAW_DIR/${BIOPROJ}.metadata.tmp
